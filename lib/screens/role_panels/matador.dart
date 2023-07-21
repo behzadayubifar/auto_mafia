@@ -104,12 +104,21 @@ class _MatadorState extends State<Matador> {
     final playerData = Provider.of<PlayerData>(context);
     final assignedRoles = playerData.assignedRoles;
     final dead = playerData.dead;
+    final blackList = playerData.lastNightBlocked;
+    final cantBeBlocked = blackList;
+    // hamaro beriz to ye list baad azash kam kon
     final List<String> alivesMinusMafia = assignedRoles.keys
         .where((playerName) =>
             assignedRoles[playerName]!.name != 'ماتادور' &&
             assignedRoles[playerName]!.name != 'پدرخوانده' &&
             !dead.contains(playerName))
         .toList();
+    /* &&
+              assignedRoles[playerName]!.name != lastNightBlocked, */
+    /// final lastNightBlocked = playerData.
+    ///
+    ///
+    ///
     String currentPlayer = assignedRoles.keys.firstWhere(
         (playerName) => assignedRoles[playerName]!.name == 'ماتادور');
     final bool currentPlayerHandCuffStatus =

@@ -31,7 +31,9 @@ class _ShowRolesScreenState extends State<ShowRolesScreen> {
   }
 
   void Function() createOnTapCallback(
-      String playerName, String playerRole, var PlayerCode) {
+    String playerName,
+    String playerRole,
+  ) {
     return () {
       showDialog(
         barrierDismissible: false,
@@ -45,7 +47,6 @@ class _ShowRolesScreenState extends State<ShowRolesScreen> {
                 children: [
                   Text(playerRole),
                   Divider(),
-                  Text(PlayerCode.toString()),
                 ],
               ),
             ), // Replace with the appropriate content
@@ -84,11 +85,12 @@ class _ShowRolesScreenState extends State<ShowRolesScreen> {
         itemBuilder: (ctx, index) {
           final playerName = displayedPlayers[index];
           final playerRole = assignedRoles[playerName];
-          final playerCode = assignedRoles[playerName]!.code;
 
           return GestureDetector(
-            onTap:
-                createOnTapCallback(playerName, playerRole!.name, playerCode),
+            onTap: createOnTapCallback(
+              playerName,
+              playerRole!.name,
+            ),
             child: Container(
               color: Theme.of(context).primaryColor,
               child: Center(

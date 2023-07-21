@@ -774,9 +774,9 @@ class PlayerData extends ChangeNotifier {
   }
 
   assignCode(List<String> players) {
-    final random = Random();
+    // final random = Random();
     final List<int> randomCodes =
-        List.generate(players.length * 2, (index) => random.nextInt(20) + 20);
+        List.generate(players.length * 2, (index) => index + index + 1);
     codes = randomCodes;
     print('codes are : $codes');
 
