@@ -105,13 +105,16 @@ class _MatadorState extends State<Matador> {
     final assignedRoles = playerData.assignedRoles;
     final dead = playerData.dead;
     final blackList = playerData.lastNightBlocked;
-    final cantBeBlocked = blackList;
+    final int currentNight = playerData.night;
+    final String cantBeBlocked =
+        blackList[1] == currentNight - 1 ? blackList[0] : '';
     // hamaro beriz to ye list baad azash kam kon
     final List<String> alivesMinusMafia = assignedRoles.keys
         .where((playerName) =>
             assignedRoles[playerName]!.name != 'ماتادور' &&
             assignedRoles[playerName]!.name != 'پدرخوانده' &&
-            !dead.contains(playerName))
+            !dead.contains(playerName) &&
+            playerName != cantBeBlocked)
         .toList();
     /* &&
               assignedRoles[playerName]!.name != lastNightBlocked, */
@@ -147,7 +150,9 @@ class _MatadorState extends State<Matador> {
     return WillPopScope(
       onWillPop: () async => isTimerFinished,
       child: Scaffold(
-          floatingActionButton: currentPlayerHandCuffStatus
+          floatingActionButton: currentPlayerHandCuffStatus ||
+                  matadordDoneAction ||
+                  selectedPlayer.isEmpty
               ? null
               : FloatingActionButton(
                   onPressed: () {

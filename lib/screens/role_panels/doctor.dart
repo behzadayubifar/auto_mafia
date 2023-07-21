@@ -52,7 +52,7 @@ class _DoctorState extends State<Doctor> {
       child: currentPlayerHandCuffStatus
           ? const BlockedScreen()
           : Scaffold(
-              floatingActionButton: doneAction
+              floatingActionButton: doneAction || selectedPlayer.isEmpty
                   ? null
                   : FloatingActionButton(
                       onPressed: () {

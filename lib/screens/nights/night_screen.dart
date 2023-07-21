@@ -106,7 +106,7 @@ class _NightScreenState extends State<NightScreen> {
           GestureDetector(
             onTap: () {
               // Your existing code for the onPressed callback
-              if (firstRoundDonePlayersNumbers == alives.length) {
+              if (firstRoundDonePlayersNumbers != -1) {
                 playerData.godToDay(context);
                 for (var player in alives) {
                   print("$player's code : ${assignedRoles[player]!.code}");

@@ -257,7 +257,7 @@ class PlayerData extends ChangeNotifier {
   returnPlayer(String deadPlayerName) {
     if (assignedRoles[deadPlayerName]!.isReversible &&
         assignedRoles[deadPlayerName]!.disclosured == false) {
-      assignedRoles[deadPlayerName]!.isReversible = false;
+      assignedRoles[deadPlayerName]?.isReversible = false;
       purgatory.add(deadPlayerName);
       //
       konstantinActionDone = [true, night];
@@ -344,7 +344,7 @@ class PlayerData extends ChangeNotifier {
 
   void roleBlocking(
       String selectedPlayers, bool isBlocked, BuildContext context) {
-    if (lastNightBlocked[0] == selectedPlayers &&
+    /*  if (lastNightBlocked[0] == selectedPlayers &&
         lastNightBlocked[1] == night - 1) {
       showDialog(
         context: context,
@@ -360,11 +360,12 @@ class PlayerData extends ChangeNotifier {
           ],
         ),
       );
-    } else {
-      assignedRoles[selectedPlayers]!.isBlocked = true;
-      lastNightBlocked = [selectedPlayers, night];
-      code = assignedRoles[selectedPlayers]!.code;
-    }
+    } else */
+
+    assignedRoles[selectedPlayers]!.isBlocked = true;
+    lastNightBlocked = [selectedPlayers, night];
+    code = assignedRoles[selectedPlayers]!.code;
+
     notifyListeners();
   }
 
@@ -776,7 +777,8 @@ class PlayerData extends ChangeNotifier {
   assignCode(List<String> players) {
     // final random = Random();
     final List<int> randomCodes =
-        List.generate(players.length * 2, (index) => index + index + 1);
+        List.generate(players.length * 2, (index) => index + index + 1)
+          ..shuffle();
     codes = randomCodes;
     print('codes are : $codes');
 
