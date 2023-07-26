@@ -41,6 +41,7 @@ class PlayerData extends ChangeNotifier {
   // int _nightRound = 1;
   int _inquiryRemained = 2;
   bool leonHasShot = false;
+  List<Map<dynamic, int>> nightNumberRelatedStore = [];
 
   // Method to add a player to the alive list
   void addToAlive(String player) {
