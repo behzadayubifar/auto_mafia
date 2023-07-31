@@ -16,22 +16,23 @@ class _NamingScreenState extends State<NamingScreen> {
   int playersNumber = 7;
 
   List<String> initialNames = [
-    'فاطمه جمشیدی',
-    'بهزاد ایوبی',
-    'مرتضی جمشیدی',
+    'فاطمه',
+    'بهزاد',
+    'مرتضی',
     'زهرا جمشیدی',
-    'زهرا مسجدی',
-    'مریم جمشیدی',
-    'محسن لامع',
-    'مرضیه هاشمی',
-    'حمید یوسفیان',
-    'محبوبه جمشیدی',
-    'نرگس محبوبی',
+    'زهرا درمسجدی',
+    'مریم',
+    'محسن',
+    'مرضیه',
+    'حمید',
+    'محبوبه',
+    'نرگس',
   ];
 
   @override
   void initState() {
     super.initState();
+    // initialNames.shuffle();
     controllers = List.generate(playersNumber, (index) {
       final String inititalText =
           index < initialNames.length ? initialNames[index] : '';

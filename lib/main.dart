@@ -20,6 +20,8 @@ import './screens/role_panels/kane.dart';
 import './screens/role_panels/doctor.dart';
 import './screens/role_panels/konstantin.dart';
 import './screens/role_panels/god_father.dart';
+import 'data/local/db/app_db.dart';
+import 'providers/db_provider.dart';
 import 'screens/nights/timer_night.dart';
 import './screens/nights/blocked_screen.dart';
 import './screens/Days/victory.dart';
@@ -30,6 +32,12 @@ main(List<String> args) {
     ChangeNotifierProvider(create: (_) => Settings()),
     ChangeNotifierProvider(create: (_) => Roles()),
     ChangeNotifierProvider(create: (_) => PlayerData()),
+    ChangeNotifierProvider(create: (_) => AppDbProvider()),
+    // Add the AppDbProvider
+    Provider<AppDb>(
+      create: (_) => AppDb(),
+      dispose: (_, db) => db.close(),
+    ),
   ], child: const GodFatherApp()));
 }
 

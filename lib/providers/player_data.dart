@@ -1,5 +1,7 @@
+import 'dart:collection';
 import 'dart:math';
 
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:god_father/model/last_move.dart';
 
@@ -13,6 +15,7 @@ import '../screens/Days/three_remained.dart';
 import '../screens/nights/night_screen.dart';
 import '../screens/show_roles_screen.dart';
 
+// final SharedPreferences prefs = await SharedPreferences.getInstance();
 class PlayerData extends ChangeNotifier {
   List<String> _playersNames = [];
   Map<String, Role> assignedRoles = {};
@@ -23,11 +26,11 @@ class PlayerData extends ChangeNotifier {
   List<LastMove> _lastMove = LastMoves.lastMoves;
   List<String> nostradamousSelectedPlayers = [];
   List<String> _kaneRightChoice = [];
+  List _kaneActionDone = [false, 0];
   List<int> codes = [];
   int? code;
   String _slaughter = '';
   late bool nostradamousActionDone = false;
-  List _kaneActionDone = [false, 0];
   List _konstantinActionDone = [false, 0];
   List _isDoctorSavedOnce = [false, 0];
   int _leonBullets = 2;
@@ -41,7 +44,23 @@ class PlayerData extends ChangeNotifier {
   // int _nightRound = 1;
   int _inquiryRemained = 2;
   bool leonHasShot = false;
-  List<Map<dynamic, int>> nightNumberRelatedStore = [];
+  List<Map<String, Map<int, dynamic>>> _nightNumberRelatedStore = [
+    {
+      'kaneActionDone': {0: false}
+    },
+    {
+      'konstantinActionDone': {0: false}
+    },
+    {
+      'isDoctorSavedOnce': {0: false}
+    },
+    {
+      'lastNightBlocked': {0: ''}
+    },
+    {
+      'kaneRightChoice': {0: ''}
+    },
+  ];
 
   // Method to add a player to the alive list
   void addToAlive(String player) {
@@ -512,7 +531,7 @@ class PlayerData extends ChangeNotifier {
         break;
       case 'همشهری کین':
         if (kaneActionDone[0] == true && kaneActionDone[1] == night) {
-          kaneActionDone = [false, night];
+          kaneActionDone = [false, 0];
           kaneRightChoice = [];
         }
         notifyListeners();
@@ -520,10 +539,11 @@ class PlayerData extends ChangeNotifier {
       case 'کنستانتین':
         if (konstantinActionDone[0] == true &&
             konstantinActionDone[1] == night) {
-          konstantinActionDone = [false, night];
+          konstantinActionDone = [false, 0];
           assignedRoles.values.forEach((role) => role.isReversible = true);
+          purgatory = [];
         }
-        purgatory = [];
+
         notifyListeners();
         break;
       default:
@@ -775,21 +795,24 @@ class PlayerData extends ChangeNotifier {
     }
   }
 
-  assignCode(List<String> players) {
-    // final random = Random();
-    final List<int> randomCodes =
-        List.generate(players.length * 2, (index) => index + index + 1)
-          ..shuffle();
-    codes = randomCodes;
-    print('codes are : $codes');
+  void assignCode(List<String> players) {
+    final random = Random();
+    final Set<int> uniqueCodes = HashSet<int>();
+    final List<int> randomCodes = List.generate(players.length, (_) {
+      int code;
+      do {
+        code = random.nextInt(12);
+      } while (!uniqueCodes.add(code)); // Regenerate if the code is not unique
+      return code;
+    }, growable: false);
 
-    // players.forEach((player) => assignedRoles[player]!.code );
+    codes = randomCodes;
+    print('codes are: $codes');
+
     for (int i = 0; i < players.length; i++) {
       final player = players[i];
       assignedRoles[player]?.code = codes[i];
     }
     notifyListeners();
   }
-
-  //
 }

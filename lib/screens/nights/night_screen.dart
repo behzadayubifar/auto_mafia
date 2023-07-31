@@ -106,7 +106,10 @@ class _NightScreenState extends State<NightScreen> {
           GestureDetector(
             onTap: () {
               // Your existing code for the onPressed callback
-              if (firstRoundDonePlayersNumbers != -1) {
+              /// fix the bug when someone returned to the game the first round done players number was not reseted and
+              /// goes not to day
+              ///
+              if (firstRoundDonePlayersNumbers > (alives.length - 1)) {
                 playerData.godToDay(context);
                 for (var player in alives) {
                   print("$player's code : ${assignedRoles[player]!.code}");
