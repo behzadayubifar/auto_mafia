@@ -11,7 +11,7 @@ class TimerNight extends StatefulWidget {
 }
 
 class _TimerNightState extends State<TimerNight> {
-  int _secondsRemaining = 11;
+  int _secondsRemaining = 1;
   late Timer _timer;
 
   @override

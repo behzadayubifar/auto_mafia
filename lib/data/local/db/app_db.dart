@@ -3,9 +3,13 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:god_father/data/local/entity/entity.dart';
+import 'package:god_father/model/role.dart';
+import 'package:god_father/providers/player_data.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'dart:developer' as devtools show log;
+
+import 'package:provider/provider.dart';
 
 part 'app_db.g.dart';
 
@@ -59,5 +63,22 @@ class AppDb extends _$AppDb {
     return select(players).watch().listen((event) {
       event.log();
     });
+//   }
+
+//   final PlayerData playerData = Provider.of<PlayerData>;
+// Map<String, Role> assignedRoles = playerData.assignedRoles;
+
+//   void fillDatabaseWithInitialData() async {
+//     final appDb = AppDb();
+
+//     // Add your initial player data here
+//     for (final player in ) {}
+/*     final initialPlayers = [
+      PlayersCompanion()
+    ];
+
+    for (final player in initialPlayers) {
+      await appDb.insertPlayer(player);
+    } */
   }
 }

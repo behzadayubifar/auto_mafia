@@ -17,6 +17,52 @@ class _DayScreenState extends State<DayScreen> {
   Map<String, List<Map<String, bool>>> playersSpeakingTurn = {};
   int? day;
   List<String> selectedPlayersToKill = [];
+  bool showPlayerGrid = false;
+  Set<String> tappedPlayers = {};
+
+  void togglePlayerGridVisibility() {
+    setState(() {
+      showPlayerGrid = !showPlayerGrid;
+    });
+  }
+
+  void onPlayerNameTapped(String playerName) {
+    setState(() {
+      tappedPlayers.add(playerName);
+    });
+  }
+
+  getPlayerCode(String playerName) {
+    final playerData = Provider.of<PlayerData>(context, listen: false);
+    final assignedRoles = playerData.assignedRoles;
+    return assignedRoles[playerName]?.code ?? 'برو خودتو سر کار بذار';
+  }
+
+  void resetTappedPlayers() {
+    setState(() {
+      tappedPlayers.clear();
+    });
+  }
+
+  // Function to show the assigned code in a dialog
+  void showAssignedCode(String playerName) {
+    final playerCode = getPlayerCode(playerName);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('$playerName'),
+          content: Text('کد: $playerCode'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -39,42 +85,66 @@ class _DayScreenState extends State<DayScreen> {
     final day = playerData.day;
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          day == 0
-              ? showDialog(
-                  context: context,
-                  builder: (context) => Directionality(
-                      textDirection: TextDirection.rtl,
-                      child: AlertDialog(
-                        content: const Text('بریم شب یا نه ؟'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              playerData.startNight(context);
-                            },
-                            child: const Text('بریم'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('نه'),
-                          ),
-                        ],
-                      )),
-                )
-              : showKillPlayerDialog(context, selectedPlayersToKill, alives,
-                  (List<String> selectedPlayersToKill) {
-                  playerData.moveToDead(selectedPlayersToKill.first);
-                }, playerData.startNight);
-          print('Selected Players to Kill: $selectedPlayersToKill');
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          FloatingActionButton(
+            heroTag: 'nightlight_outlined',
+            onPressed: () {
+              day == 0
+                  ? showDialog(
+                      context: context,
+                      builder: (context) => Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: AlertDialog(
+                            content: const Text('بریم شب یا نه ؟'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  resetTappedPlayers();
+                                  playerData.startNight(context);
+                                },
+                                child: const Text('بریم'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('نه'),
+                              ),
+                            ],
+                          )),
+                    )
+                  : showKillPlayerDialog(context, selectedPlayersToKill, alives,
+                      (List<String> selectedPlayersToKill) {
+                      playerData.moveToDead(selectedPlayersToKill.first);
+                    }, playerData.startNight);
+              print('Selected Players to Kill: $selectedPlayersToKill');
 
-          print('Dead Players: ${playerData.dead}');
-          print('Alive Players: ${playerData.alives}');
-        },
-        child: const Icon(Icons.nightlight_outlined),
+              print('Dead Players: ${playerData.dead}');
+              print('Alive Players: ${playerData.alives}');
+            },
+            child: const Icon(Icons.nightlight_outlined),
+          ),
+          FloatingActionButton(
+            heroTag: 'code',
+            onPressed: () {
+              // build a grid view of all the players who are alive which when is tapped on a player it will show the assigned code for that player
+              togglePlayerGridVisibility();
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return buildPlayerGridOverlay(context);
+                },
+              );
+            },
+            child: Icon(Icons.code),
+          )
+        ],
       ),
       appBar: AppBar(
         title: (day == 0) ? const Text('Introducing Day') : Text('Day $day'),
@@ -191,10 +261,69 @@ class _DayScreenState extends State<DayScreen> {
                 ),
               );
             },
-            separatorBuilder: (BuildContext context, int index) => const SizedBox(
+            separatorBuilder: (BuildContext context, int index) =>
+                const SizedBox(
               height: 8,
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildPlayerGridOverlay(BuildContext context) {
+    final playerData = Provider.of<PlayerData>(context, listen: false);
+    final alives = playerData.alives;
+
+    return Center(
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 30, 27, 27),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+          ),
+          itemCount: alives.length,
+          itemBuilder: (context, index) {
+            final playerName = alives[index];
+            return GestureDetector(
+              // behavior: HitTestBehavior.translucent,
+              onTap: () {
+                if (!tappedPlayers.contains(playerName)) {
+                  showAssignedCode(playerName);
+                  onPlayerNameTapped(
+                      playerName); // Call the function when tapped
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 5, 56, 98),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                alignment: Alignment.center,
+                child: DefaultTextStyle(
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  child: Text(
+                    playerName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

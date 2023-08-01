@@ -41,26 +41,25 @@ class PlayerData extends ChangeNotifier {
   int _independent = 0;
   int _day = 0, _night = 0;
   int _mafiaBullet = 1;
-  // int _nightRound = 1;
   int _inquiryRemained = 2;
   bool leonHasShot = false;
-  List<Map<String, Map<int, dynamic>>> _nightNumberRelatedStore = [
-    {
-      'kaneActionDone': {0: false}
-    },
-    {
-      'konstantinActionDone': {0: false}
-    },
-    {
-      'isDoctorSavedOnce': {0: false}
-    },
-    {
-      'lastNightBlocked': {0: ''}
-    },
-    {
-      'kaneRightChoice': {0: ''}
-    },
-  ];
+  // List<Map<String, Map<int, dynamic>>> _nightNumberRelatedStore = [
+  //   {
+  //     'kaneActionDone': {0: false}
+  //   },
+  //   {
+  //     'konstantinActionDone': {0: false}
+  //   },
+  //   {
+  //     'isDoctorSavedOnce': {0: false}
+  //   },
+  //   {
+  //     'lastNightBlocked': {0: ''}
+  //   },
+  //   {
+  //     'kaneRightChoice': {0: ''}
+  //   },
+  // ];
 
   // Method to add a player to the alive list
   void addToAlive(String player) {
@@ -493,60 +492,66 @@ class PlayerData extends ChangeNotifier {
   }
 
   godToDay(BuildContext context) {
+    final blockedPlayer = alives.firstWhere(
+      (player) => assignedRoles[player]?.isBlocked == true,
+      orElse: () => '',
+    );
 //
     final playersCodes = [];
     if (code == null && night != 0) {
       for (var player in _playersNames) {
         playersCodes.add(assignedRoles[player]!.code);
       }
-      code = codes.firstWhere((code) => !playersCodes.contains(code));
+      if (blockedPlayer.isNotEmpty) {
+        code = codes.firstWhere((code) => !playersCodes.contains(code));
+      } else {
+        code = codes.firstWhere((code) => !playersCodes.contains(code));
+      }
     }
 //
-    final blockedPlayer = alives.firstWhere(
-      (player) => assignedRoles[player]!.isBlocked == true,
-      orElse: () => '',
-    );
 //
-    switch (assignedRoles[blockedPlayer]?.name) {
-      case 'لئون حرفه ای':
-        if (leonHasShot) {
-          leonBullets++;
-          leonWrongShot = false;
-          assignedRoles.keys
-              .where((player) => aliveMafias.contains(player))
-              .forEach((player) {
-            assignedRoles[player]!.isShot = false;
-          });
-          print('leonWrongShot : $leonHasShot');
-          print('leon bullets : $leonBullets');
-        }
-        notifyListeners();
-        break;
-      case 'دکتر واتسون':
-        if (isDoctorSavedOnce[0] == true && isDoctorSavedOnce[1] == night) {
-          isDoctorSavedOnce = [false, night];
-        }
-        assignedRoles.values.forEach((role) => role.isSaved = false);
-        notifyListeners();
-        break;
-      case 'همشهری کین':
-        if (kaneActionDone[0] == true && kaneActionDone[1] == night) {
-          kaneActionDone = [false, 0];
-          kaneRightChoice = [];
-        }
-        notifyListeners();
-        break;
-      case 'کنستانتین':
-        if (konstantinActionDone[0] == true &&
-            konstantinActionDone[1] == night) {
-          konstantinActionDone = [false, 0];
-          assignedRoles.values.forEach((role) => role.isReversible = true);
-          purgatory = [];
-        }
+    if (blockedPlayer.isNotEmpty) {
+      switch (assignedRoles[blockedPlayer]?.name) {
+        case 'لئون حرفه ای':
+          if (leonHasShot) {
+            leonBullets++;
+            leonWrongShot = false;
+            assignedRoles.keys
+                .where((player) => aliveMafias.contains(player))
+                .forEach((player) {
+              assignedRoles[player]!.isShot = false;
+            });
+            print('leonWrongShot : $leonHasShot');
+            print('leon bullets : $leonBullets');
+          }
+          notifyListeners();
+          break;
+        case 'دکتر واتسون':
+          if (isDoctorSavedOnce[0] == true && isDoctorSavedOnce[1] == night) {
+            isDoctorSavedOnce = [false, night];
+          }
+          assignedRoles.values.forEach((role) => role.isSaved = false);
+          notifyListeners();
+          break;
+        case 'همشهری کین':
+          if (kaneActionDone[0] == true && kaneActionDone[1] == night) {
+            kaneActionDone = [false, 0];
+            kaneRightChoice = [];
+          }
+          notifyListeners();
+          break;
+        case 'کنستانتین':
+          if (konstantinActionDone[0] == true &&
+              konstantinActionDone[1] == night) {
+            konstantinActionDone = [false, 0];
+            assignedRoles.values.forEach((role) => role.isReversible = true);
+            purgatory = [];
+          }
 
-        notifyListeners();
-        break;
-      default:
+          notifyListeners();
+          break;
+        default:
+      }
     }
 
 //
@@ -723,9 +728,8 @@ class PlayerData extends ChangeNotifier {
     leonWrongShot = false;
     purgatory = [];
     assignCode(alives);
-    code = null;
-    if (lastNightBlocked.contains(assignedRoles.keys.where(
-        (playerName) => assignedRoles[playerName]!.name == 'لئون حرفه ای'))) {}
+    // if (lastNightBlocked.contains(assignedRoles.keys.where(
+    //     (playerName) => assignedRoles[playerName]!.name == 'لئون حرفه ای'))) {}
     leonHasShot = false;
     code = null;
   }
@@ -798,10 +802,10 @@ class PlayerData extends ChangeNotifier {
   void assignCode(List<String> players) {
     final random = Random();
     final Set<int> uniqueCodes = HashSet<int>();
-    final List<int> randomCodes = List.generate(players.length, (_) {
+    final List<int> randomCodes = List.generate((players.length + 5), (_) {
       int code;
       do {
-        code = random.nextInt(12);
+        code = random.nextInt(17) + 1;
       } while (!uniqueCodes.add(code)); // Regenerate if the code is not unique
       return code;
     }, growable: false);
@@ -812,6 +816,7 @@ class PlayerData extends ChangeNotifier {
     for (int i = 0; i < players.length; i++) {
       final player = players[i];
       assignedRoles[player]?.code = codes[i];
+      print('player: $player, code: ${assignedRoles[player]?.code}');
     }
     notifyListeners();
   }

@@ -109,22 +109,22 @@ class _NightScreenState extends State<NightScreen> {
               /// fix the bug when someone returned to the game the first round done players number was not reseted and
               /// goes not to day
               ///
-              if (firstRoundDonePlayersNumbers > (alives.length - 1)) {
-                playerData.godToDay(context);
-                for (var player in alives) {
-                  print("$player's code : ${assignedRoles[player]!.code}");
-                }
-              } else {
-                showDialog(
-                  context: context,
-                  builder: (context) => const Directionality(
-                    textDirection: TextDirection.rtl,
-                    child: AlertDialog(
-                      title: Text('هنوز نمی‌توانید به روز بروید'),
-                    ),
-                  ),
-                );
-              }
+              // if (firstRoundDonePlayersNumbers >= (alives.length - 1)) {
+              playerData.godToDay(context);
+              //   for (var player in alives) {
+              //     print("$player's code : ${assignedRoles[player]!.code}");
+              //   }
+              // } else {
+              //   showDialog(
+              //     context: context,
+              //     builder: (context) => const Directionality(
+              //       textDirection: TextDirection.rtl,
+              //       child: AlertDialog(
+              //         title: Text('هنوز نمی‌توانید به روز بروید'),
+              //       ),
+              //     ),
+              //   );
+              // }
             },
             child: const FloatingActionButton(
               heroTag: 'btn2',
