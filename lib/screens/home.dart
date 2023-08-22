@@ -1,10 +1,14 @@
+import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
+import 'package:god_father/data/local/db/app_db.dart';
 import 'package:god_father/screens/game_screen.dart';
 import 'package:god_father/screens/naming_screen.dart';
 import '../providers/settings.dart';
 
 class Home extends StatelessWidget {
   // const Home({super.key, Key? keym});
+
+  final db = AppDb(); //This should be a singleton
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +61,10 @@ class Home extends StatelessWidget {
                 ),
                 const SizedBox(height: 50),
                 TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => DriftDbViewer(db)));
+                  },
                   icon: const Icon(Icons.help_center_rounded),
                   label: const Text(
                     'Help',

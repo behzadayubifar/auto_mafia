@@ -30,7 +30,7 @@ class _LinearTimerState extends State<LinearTimer> {
   }
 
   void startTimer() {
-    int totalSeconds = 5;
+    int totalSeconds = 15;
     int elapsedSeconds = 0;
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {

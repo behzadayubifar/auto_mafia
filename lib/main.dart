@@ -18,8 +18,10 @@ import './screens/role_panels/matador.dart';
 import './screens/role_panels/leon.dart';
 import './screens/role_panels/kane.dart';
 import './screens/role_panels/doctor.dart';
+import 'screens/role_panels/citizen.dart';
 import './screens/role_panels/konstantin.dart';
 import './screens/role_panels/god_father.dart';
+
 import 'data/local/db/app_db.dart';
 import 'providers/db_provider.dart';
 import 'screens/nights/timer_night.dart';
@@ -27,6 +29,7 @@ import './screens/nights/blocked_screen.dart';
 import './screens/Days/victory.dart';
 
 main(List<String> args) {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => DayNightThemeManager()),
     ChangeNotifierProvider(create: (_) => Settings()),
@@ -71,6 +74,7 @@ class _GodFatherAppState extends State<GodFatherApp> {
           '/leon': (context) => const Leon(),
           '/kane': (context) => const Kane(),
           '/doctor': (context) => const Doctor(),
+          '/citizen': (context) => const Citizen(),
           '/konstantin': (context) => const Konstantin(),
           '/god-father': (context) => const GodFather(),
           '/blocked': (context) => const BlockedScreen(),

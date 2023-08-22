@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:god_father/screens/nights/blocked_screen.dart';
+import 'package:god_father/screens/role_panels/citizen.dart';
 import '../nights/timer_night.dart';
 import '../role_panels/doctor.dart';
 import '../role_panels/god_father.dart';
@@ -109,22 +109,22 @@ class _NightScreenState extends State<NightScreen> {
               /// fix the bug when someone returned to the game the first round done players number was not reseted and
               /// goes not to day
               ///
-              // if (firstRoundDonePlayersNumbers >= (alives.length - 1)) {
-              playerData.godToDay(context);
-              //   for (var player in alives) {
-              //     print("$player's code : ${assignedRoles[player]!.code}");
-              //   }
-              // } else {
-              //   showDialog(
-              //     context: context,
-              //     builder: (context) => const Directionality(
-              //       textDirection: TextDirection.rtl,
-              //       child: AlertDialog(
-              //         title: Text('هنوز نمی‌توانید به روز بروید'),
-              //       ),
-              //     ),
-              //   );
-              // }
+              if (firstRoundDonePlayersNumbers >= (alives.length - 1)) {
+                playerData.godToDay(context);
+                for (var player in alives) {
+                  print("$player's code : ${assignedRoles[player]!.code}");
+                }
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (context) => const Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: AlertDialog(
+                      title: Text('هنوز نمی‌توانید به روز بروید'),
+                    ),
+                  ),
+                );
+              }
             },
             child: const FloatingActionButton(
               heroTag: 'btn2',
@@ -246,7 +246,7 @@ class _NightScreenState extends State<NightScreen> {
                                           break;
                                         case 'شهر ساده':
                                           Navigator.of(context)
-                                              .pushNamed(TimerNight.routeName);
+                                              .pushNamed(Citizen.routeName);
                                           break;
                                       }
 

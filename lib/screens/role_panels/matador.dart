@@ -109,12 +109,18 @@ class _MatadorState extends State<Matador> {
     final String cantBeBlocked =
         blackList[1] == currentNight - 1 ? blackList[0] : '';
     // hamaro beriz to ye list baad azash kam kon
-    final List<String> alivesMinusMafia = assignedRoles.keys
+    final List<String> alivesMinusMafiaAndLastNightBlocked = assignedRoles.keys
         .where((playerName) =>
             assignedRoles[playerName]!.name != 'ماتادور' &&
             assignedRoles[playerName]!.name != 'پدرخوانده' &&
             !dead.contains(playerName) &&
             playerName != cantBeBlocked)
+        .toList();
+    final List<String> alivesMinusMafia = assignedRoles.keys
+        .where((playerName) =>
+            assignedRoles[playerName]!.name != 'ماتادور' &&
+            assignedRoles[playerName]!.name != 'پدرخوانده' &&
+            !dead.contains(playerName))
         .toList();
     /* &&
               assignedRoles[playerName]!.name != lastNightBlocked, */
@@ -138,7 +144,7 @@ class _MatadorState extends State<Matador> {
         context: context,
         builder: (context) {
           return ShootDialog(
-            alivesMinusMafia: alivesMinusMafia,
+            alivesMinusMafia: alivesMinusMafiaAndLastNightBlocked,
             onShoot: (selectedPlayer) {
               playerData.mafiaShoot(selectedPlayer, context);
             },
@@ -230,7 +236,8 @@ class _MatadorState extends State<Matador> {
                                     itemBuilder:
                                         (BuildContext context, int index) {
                                       final playerName =
-                                          alivesMinusMafia[index];
+                                          alivesMinusMafiaAndLastNightBlocked[
+                                              index];
                                       final isSelected =
                                           playerName == selectedPlayer;
                                       return Material(

@@ -19,6 +19,10 @@ import '../screens/show_roles_screen.dart';
 class PlayerData extends ChangeNotifier {
   List<String> _playersNames = [];
   Map<String, Role> assignedRoles = {};
+/*   Map RoleMap = {
+    'godFather': assignedRoles.values
+        .where((role) => role.name == 'پدرخوانده'), //waht is the error for ?
+  }; */
   List<Role> _allRoles = [];
   List<String> _alives = [];
   List<String> _dead = [];
@@ -160,7 +164,7 @@ class PlayerData extends ChangeNotifier {
   int get night => _night;
 
   List<LastMove> get lastMove {
-    // _lastMove.shuffle();
+    _lastMove.shuffle();
     for (var lastMove in _lastMove) {
       print('lastMove: ${lastMove.name}');
     }
