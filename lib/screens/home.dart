@@ -8,8 +8,6 @@ import '../providers/settings.dart';
 class Home extends StatelessWidget {
   // const Home({super.key, Key? keym});
 
-  final db = AppDb(); //This should be a singleton
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -60,22 +58,22 @@ class Home extends StatelessWidget {
                   // Apply the theme's icon color
                 ),
                 const SizedBox(height: 50),
-                TextButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => DriftDbViewer(db)));
-                  },
-                  icon: const Icon(Icons.help_center_rounded),
-                  label: const Text(
-                    'Help',
-                  ),
-                  style: TextButton.styleFrom(
-                    foregroundColor: theme.textTheme.labelLarge
-                        ?.color, // Apply the theme's labelLarge text color
-                    textStyle: settings
-                        .buttonLabelStyle, // Apply the custom labelLarge label text style
-                  ),
-                ),
+                // TextButton.icon(
+                //   onPressed: () {
+                //     Navigator.of(context).push(MaterialPageRoute(
+                //         builder: (context) => DriftDbViewer(_db)));
+                //   },
+                //   icon: const Icon(Icons.help_center_rounded),
+                //   label: const Text(
+                //     'Help',
+                //   ),
+                //   style: TextButton.styleFrom(
+                //     foregroundColor: theme.textTheme.labelLarge
+                //         ?.color, // Apply the theme's labelLarge text color
+                //     textStyle: settings
+                //         .buttonLabelStyle, // Apply the custom labelLarge label text style
+                //   ),
+                // ),
                 TextButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.settings_rounded),

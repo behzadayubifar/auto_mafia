@@ -36,33 +36,41 @@ class AppDb extends _$AppDb {
   @override
   int get schemaVersion => 1;
 
-  Future<List<InCommonData>> getPlayers() async {
+//
+  Future<void> insertMultiplePlayers(List<InCommonCompanion> players) async {
+    await batch((batch) {
+      batch.insertAll(inCommon, players);
+    });
+  }
+
+  //
+  Future<int> insertPlayer(InCommonCompanion player) async {
+    return await into(inCommon).insert(player);
+  }
+
+  //
+  Future<List<InCommonData>> getAllPlayers() async {
     return await select(inCommon).get();
   }
 
-  Future<InCommonData> getPlayer(int id) async {
-    return await (select(inCommon)..where((p) => p.id.equals(id))).getSingle();
+  Future<InCommonData> getPlayerByRole(String role) async {
+    return await (select(inCommon)..where((p) => p.roleName.equals(role)))
+        .getSingle();
   }
 
-  // Future<bool> updatePlayer(PlayersCompanion player) async {
-  //   return await update(players).replace(player);
-  // }
+  Future<bool> updatePlayer(InCommonCompanion player) async {
+    return await update(inCommon).replace(player);
+  }
 
-  // Future<int> deletePlayer(int id) async {
-  //   return await (delete(players)..where((p) => p.id.equals(id))).go();
-  // }
+  Future<int> deletePlayer(int id) async {
+    return await (delete(inCommon)..where((p) => p.id.equals(id))).go();
+  }
 
-  // Future<int> deleteAllPlayers() async {
-  //   return await delete(players).go();
-  // }
+  Future<int> deleteAllPlayers() async {
+    return await delete(inCommon).go();
+  }
 
-  // Future<int> insertPlayer(PlayersCompanion player) async {
-  //   return await into(players).insert(player);
-  // }
-
-  // getPlayersStream() {
-  //   return select(players).watch().listen((event) {
-  //     event.log();
-  //   });
-  // }
+  Stream<List<InCommonData>> watchAllPlayers() {
+    return select(inCommon).watch();
+  }
 }

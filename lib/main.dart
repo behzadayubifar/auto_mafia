@@ -58,7 +58,10 @@ class _GodFatherAppState extends State<GodFatherApp> {
       textDirection: TextDirection.rtl,
       child: MaterialApp(
         title: 'God Father',
-        theme: DayNightThemeManager().currentTheme,
+        // theme: DayNightThemeManager().currentTheme,
+        theme: ThemeData.dark(),
+        darkTheme: ThemeData.dark(),
+        themeMode: ThemeMode.dark,
         home: Home(),
         debugShowCheckedModeBanner: false,
         initialRoute: '/',

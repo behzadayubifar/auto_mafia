@@ -37,7 +37,7 @@ class DayTheme {
       dense: true,
       tileColor: const Color.fromARGB(255, 104, 72, 66),
       contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 4),
-      textColor: Colors.white,
+      textColor: const Color.fromARGB(255, 0, 0, 0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -45,9 +45,53 @@ class DayTheme {
     primarySwatch: Colors.brown,
     iconTheme: const IconThemeData(color: Colors.white70, size: 40),
     textTheme: const TextTheme(
+      displayLarge: TextStyle(
+        color: Color.fromARGB(179, 30, 30, 30),
+        fontSize: 50,
+      ),
+      displayMedium: TextStyle(
+        color: Color.fromARGB(179, 30, 30, 30),
+        fontSize: 40,
+      ),
+      displaySmall: TextStyle(
+        color: Color.fromARGB(179, 30, 30, 30),
+        fontSize: 30,
+      ),
+      titleLarge: TextStyle(
+        color: Color.fromARGB(179, 30, 30, 30),
+        fontSize: 20,
+      ),
+      titleMedium: TextStyle(
+        color: Color.fromARGB(179, 30, 30, 30),
+        fontSize: 15,
+      ),
+      titleSmall: TextStyle(
+        color: Color.fromARGB(179, 30, 30, 30),
+        fontSize: 10,
+      ),
       labelLarge: TextStyle(
         color: Colors.white70,
         fontSize: 40,
+      ),
+      labelMedium: TextStyle(
+        color: Color.fromARGB(179, 5, 5, 5),
+        fontSize: 30,
+      ),
+      labelSmall: TextStyle(
+        color: Color.fromARGB(179, 5, 5, 5),
+        fontSize: 20,
+      ),
+      bodyLarge: TextStyle(
+        color: Color.fromARGB(179, 30, 30, 30),
+        fontSize: 40,
+      ),
+      bodyMedium: TextStyle(
+        color: Color.fromARGB(179, 30, 30, 30),
+        fontSize: 30,
+      ),
+      bodySmall: TextStyle(
+        color: Color.fromARGB(179, 30, 30, 30),
+        fontSize: 20,
       ),
     ),
     textButtonTheme: TextButtonThemeData(

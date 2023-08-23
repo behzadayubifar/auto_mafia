@@ -10,19 +10,24 @@ class AppDbProvider extends ChangeNotifier {
     _appDb = db;
   }
 
-  List<InCommon> _playersListFuture = [];
+  List<InCommonData> _playersListFuture = [];
+  List<InCommonData> get playersListFuture => _playersListFuture;
+  List<InCommonData> _playersListStream = [];
+  List<InCommonData> get playersListStream => _playersListStream;
+  String _error = '';
+  String get error => _error;
 
-  Future<void> insertPlayer(String playerName, String roleName) async {
-    if (_appDb == null) {
-      throw Exception('AppDb not initialized. Call initAppDb() first.');
+  Future<void> getPlayersListFuture() async {
+    try {
+      _playersListFuture = await _appDb!.getAllPlayers();
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
     }
-
-    // final player = PlayersCompanion(
-    //   playerName: Value(playerName),
-    //   roleName: Value(roleName),
-    //   // Add other role-specific fields based on the role name
-    // );
   }
 
-  // Add other methods for updating, deleting, and querying data
+  Stream<List<InCommonData>> getPlayersListStream() {
+    return _appDb!.watchAllPlayers();
+  }
 }

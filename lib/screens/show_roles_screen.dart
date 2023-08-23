@@ -1,4 +1,6 @@
+import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
+import 'package:god_father/data/local/db/app_db.dart';
 import 'package:god_father/providers/player_data.dart';
 import 'package:god_father/screens/Days/day_screen.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +24,11 @@ class _ShowRolesScreenState extends State<ShowRolesScreen> {
     super.initState();
     final playerData = Provider.of<PlayerData>(context, listen: false);
     displayedPlayers = List.from(playerData.alives);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   void hidePlayer(String playerName) {
@@ -68,11 +75,24 @@ class _ShowRolesScreenState extends State<ShowRolesScreen> {
   @override
   Widget build(BuildContext context) {
     final playerData = Provider.of<PlayerData>(context, listen: false);
+    final _db = Provider.of<AppDb>(context, listen: false);
     final Map<String, Role> assignedRoles = playerData.assignedRoles;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Assigned Roles'),
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => DriftDbViewer(_db)));
+            },
+            icon: const Icon(Icons.help_center_rounded),
+            label: const Text(
+              'Help',
+            ),
+          ),
+        ],
       ),
       body: GridView.builder(
         padding: const EdgeInsets.all(16),

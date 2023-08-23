@@ -67,14 +67,15 @@ class $InCommonTable extends InCommon
       const VerificationMeta('isAlive');
   @override
   late final GeneratedColumn<bool> isAlive =
-      GeneratedColumn<bool>('is_alive', aliasedName, true,
+      GeneratedColumn<bool>('is_alive', aliasedName, false,
           type: DriftSqlType.bool,
           requiredDuringInsert: false,
           defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
             SqlDialect.sqlite: 'CHECK ("is_alive" IN (0, 1))',
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
-          }));
+          }),
+          defaultValue: const Constant(true));
   static const VerificationMeta _isBlockedMeta =
       const VerificationMeta('isBlocked');
   @override
@@ -99,6 +100,18 @@ class $InCommonTable extends InCommon
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
           }));
+  static const VerificationMeta _handCuffedMeta =
+      const VerificationMeta('handCuffed');
+  @override
+  late final GeneratedColumn<bool> handCuffed =
+      GeneratedColumn<bool>('hand_cuffed', aliasedName, true,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("hand_cuffed" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -111,7 +124,8 @@ class $InCommonTable extends InCommon
         order,
         isAlive,
         isBlocked,
-        isReversible
+        isReversible,
+        handCuffed
       ];
   @override
   String get aliasedName => _alias ?? 'in_common';
@@ -181,6 +195,12 @@ class $InCommonTable extends InCommon
           isReversible.isAcceptableOrUnknown(
               data['is_reversible']!, _isReversibleMeta));
     }
+    if (data.containsKey('hand_cuffed')) {
+      context.handle(
+          _handCuffedMeta,
+          handCuffed.isAcceptableOrUnknown(
+              data['hand_cuffed']!, _handCuffedMeta));
+    }
     return context;
   }
 
@@ -207,11 +227,13 @@ class $InCommonTable extends InCommon
       order: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}order'])!,
       isAlive: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_alive']),
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_alive'])!,
       isBlocked: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_blocked']),
       isReversible: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_reversible']),
+      handCuffed: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}hand_cuffed']),
     );
   }
 
@@ -230,9 +252,10 @@ class InCommonData extends DataClass implements Insertable<InCommonData> {
   final String type;
   final int? playerCode;
   final int order;
-  final bool? isAlive;
+  final bool isAlive;
   final bool? isBlocked;
   final bool? isReversible;
+  final bool? handCuffed;
   const InCommonData(
       {required this.id,
       required this.playerName,
@@ -242,9 +265,10 @@ class InCommonData extends DataClass implements Insertable<InCommonData> {
       required this.type,
       this.playerCode,
       required this.order,
-      this.isAlive,
+      required this.isAlive,
       this.isBlocked,
-      this.isReversible});
+      this.isReversible,
+      this.handCuffed});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -260,14 +284,15 @@ class InCommonData extends DataClass implements Insertable<InCommonData> {
       map['player_code'] = Variable<int>(playerCode);
     }
     map['order'] = Variable<int>(order);
-    if (!nullToAbsent || isAlive != null) {
-      map['is_alive'] = Variable<bool>(isAlive);
-    }
+    map['is_alive'] = Variable<bool>(isAlive);
     if (!nullToAbsent || isBlocked != null) {
       map['is_blocked'] = Variable<bool>(isBlocked);
     }
     if (!nullToAbsent || isReversible != null) {
       map['is_reversible'] = Variable<bool>(isReversible);
+    }
+    if (!nullToAbsent || handCuffed != null) {
+      map['hand_cuffed'] = Variable<bool>(handCuffed);
     }
     return map;
   }
@@ -286,15 +311,16 @@ class InCommonData extends DataClass implements Insertable<InCommonData> {
           ? const Value.absent()
           : Value(playerCode),
       order: Value(order),
-      isAlive: isAlive == null && nullToAbsent
-          ? const Value.absent()
-          : Value(isAlive),
+      isAlive: Value(isAlive),
       isBlocked: isBlocked == null && nullToAbsent
           ? const Value.absent()
           : Value(isBlocked),
       isReversible: isReversible == null && nullToAbsent
           ? const Value.absent()
           : Value(isReversible),
+      handCuffed: handCuffed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(handCuffed),
     );
   }
 
@@ -310,9 +336,10 @@ class InCommonData extends DataClass implements Insertable<InCommonData> {
       type: serializer.fromJson<String>(json['type']),
       playerCode: serializer.fromJson<int?>(json['playerCode']),
       order: serializer.fromJson<int>(json['order']),
-      isAlive: serializer.fromJson<bool?>(json['isAlive']),
+      isAlive: serializer.fromJson<bool>(json['isAlive']),
       isBlocked: serializer.fromJson<bool?>(json['isBlocked']),
       isReversible: serializer.fromJson<bool?>(json['isReversible']),
+      handCuffed: serializer.fromJson<bool?>(json['handCuffed']),
     );
   }
   @override
@@ -327,9 +354,10 @@ class InCommonData extends DataClass implements Insertable<InCommonData> {
       'type': serializer.toJson<String>(type),
       'playerCode': serializer.toJson<int?>(playerCode),
       'order': serializer.toJson<int>(order),
-      'isAlive': serializer.toJson<bool?>(isAlive),
+      'isAlive': serializer.toJson<bool>(isAlive),
       'isBlocked': serializer.toJson<bool?>(isBlocked),
       'isReversible': serializer.toJson<bool?>(isReversible),
+      'handCuffed': serializer.toJson<bool?>(handCuffed),
     };
   }
 
@@ -342,9 +370,10 @@ class InCommonData extends DataClass implements Insertable<InCommonData> {
           String? type,
           Value<int?> playerCode = const Value.absent(),
           int? order,
-          Value<bool?> isAlive = const Value.absent(),
+          bool? isAlive,
           Value<bool?> isBlocked = const Value.absent(),
-          Value<bool?> isReversible = const Value.absent()}) =>
+          Value<bool?> isReversible = const Value.absent(),
+          Value<bool?> handCuffed = const Value.absent()}) =>
       InCommonData(
         id: id ?? this.id,
         playerName: playerName ?? this.playerName,
@@ -354,10 +383,11 @@ class InCommonData extends DataClass implements Insertable<InCommonData> {
         type: type ?? this.type,
         playerCode: playerCode.present ? playerCode.value : this.playerCode,
         order: order ?? this.order,
-        isAlive: isAlive.present ? isAlive.value : this.isAlive,
+        isAlive: isAlive ?? this.isAlive,
         isBlocked: isBlocked.present ? isBlocked.value : this.isBlocked,
         isReversible:
             isReversible.present ? isReversible.value : this.isReversible,
+        handCuffed: handCuffed.present ? handCuffed.value : this.handCuffed,
       );
   @override
   String toString() {
@@ -372,14 +402,15 @@ class InCommonData extends DataClass implements Insertable<InCommonData> {
           ..write('order: $order, ')
           ..write('isAlive: $isAlive, ')
           ..write('isBlocked: $isBlocked, ')
-          ..write('isReversible: $isReversible')
+          ..write('isReversible: $isReversible, ')
+          ..write('handCuffed: $handCuffed')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(id, playerName, roleName, heart, isSaved,
-      type, playerCode, order, isAlive, isBlocked, isReversible);
+      type, playerCode, order, isAlive, isBlocked, isReversible, handCuffed);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -394,7 +425,8 @@ class InCommonData extends DataClass implements Insertable<InCommonData> {
           other.order == this.order &&
           other.isAlive == this.isAlive &&
           other.isBlocked == this.isBlocked &&
-          other.isReversible == this.isReversible);
+          other.isReversible == this.isReversible &&
+          other.handCuffed == this.handCuffed);
 }
 
 class InCommonCompanion extends UpdateCompanion<InCommonData> {
@@ -406,9 +438,10 @@ class InCommonCompanion extends UpdateCompanion<InCommonData> {
   final Value<String> type;
   final Value<int?> playerCode;
   final Value<int> order;
-  final Value<bool?> isAlive;
+  final Value<bool> isAlive;
   final Value<bool?> isBlocked;
   final Value<bool?> isReversible;
+  final Value<bool?> handCuffed;
   const InCommonCompanion({
     this.id = const Value.absent(),
     this.playerName = const Value.absent(),
@@ -421,6 +454,7 @@ class InCommonCompanion extends UpdateCompanion<InCommonData> {
     this.isAlive = const Value.absent(),
     this.isBlocked = const Value.absent(),
     this.isReversible = const Value.absent(),
+    this.handCuffed = const Value.absent(),
   });
   InCommonCompanion.insert({
     this.id = const Value.absent(),
@@ -434,6 +468,7 @@ class InCommonCompanion extends UpdateCompanion<InCommonData> {
     this.isAlive = const Value.absent(),
     this.isBlocked = const Value.absent(),
     this.isReversible = const Value.absent(),
+    this.handCuffed = const Value.absent(),
   })  : playerName = Value(playerName),
         roleName = Value(roleName),
         heart = Value(heart),
@@ -451,6 +486,7 @@ class InCommonCompanion extends UpdateCompanion<InCommonData> {
     Expression<bool>? isAlive,
     Expression<bool>? isBlocked,
     Expression<bool>? isReversible,
+    Expression<bool>? handCuffed,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -464,6 +500,7 @@ class InCommonCompanion extends UpdateCompanion<InCommonData> {
       if (isAlive != null) 'is_alive': isAlive,
       if (isBlocked != null) 'is_blocked': isBlocked,
       if (isReversible != null) 'is_reversible': isReversible,
+      if (handCuffed != null) 'hand_cuffed': handCuffed,
     });
   }
 
@@ -476,9 +513,10 @@ class InCommonCompanion extends UpdateCompanion<InCommonData> {
       Value<String>? type,
       Value<int?>? playerCode,
       Value<int>? order,
-      Value<bool?>? isAlive,
+      Value<bool>? isAlive,
       Value<bool?>? isBlocked,
-      Value<bool?>? isReversible}) {
+      Value<bool?>? isReversible,
+      Value<bool?>? handCuffed}) {
     return InCommonCompanion(
       id: id ?? this.id,
       playerName: playerName ?? this.playerName,
@@ -491,6 +529,7 @@ class InCommonCompanion extends UpdateCompanion<InCommonData> {
       isAlive: isAlive ?? this.isAlive,
       isBlocked: isBlocked ?? this.isBlocked,
       isReversible: isReversible ?? this.isReversible,
+      handCuffed: handCuffed ?? this.handCuffed,
     );
   }
 
@@ -530,6 +569,9 @@ class InCommonCompanion extends UpdateCompanion<InCommonData> {
     if (isReversible.present) {
       map['is_reversible'] = Variable<bool>(isReversible.value);
     }
+    if (handCuffed.present) {
+      map['hand_cuffed'] = Variable<bool>(handCuffed.value);
+    }
     return map;
   }
 
@@ -546,7 +588,8 @@ class InCommonCompanion extends UpdateCompanion<InCommonData> {
           ..write('order: $order, ')
           ..write('isAlive: $isAlive, ')
           ..write('isBlocked: $isBlocked, ')
-          ..write('isReversible: $isReversible')
+          ..write('isReversible: $isReversible, ')
+          ..write('handCuffed: $handCuffed')
           ..write(')'))
         .toString();
   }
@@ -571,7 +614,9 @@ class $KaneSectionTable extends KaneSection
   @override
   late final GeneratedColumn<String> kaneRightChoice = GeneratedColumn<String>(
       'kane_right_choice', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
   static const VerificationMeta _nightOfCorrectChoiceMeta =
       const VerificationMeta('nightOfCorrectChoice');
   @override
@@ -898,6 +943,14 @@ class $KonstantinSectionTable extends KonstantinSection
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $KonstantinSectionTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES in_common (id)'));
   static const VerificationMeta _nightOfReturningMeta =
       const VerificationMeta('nightOfReturning');
   @override
@@ -918,7 +971,7 @@ class $KonstantinSectionTable extends KonstantinSection
           }));
   @override
   List<GeneratedColumn> get $columns =>
-      [nightOfReturning, konstantinActionDone];
+      [id, nightOfReturning, konstantinActionDone];
   @override
   String get aliasedName => _alias ?? 'konstantin_section';
   @override
@@ -929,6 +982,11 @@ class $KonstantinSectionTable extends KonstantinSection
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
     if (data.containsKey('night_of_returning')) {
       context.handle(
           _nightOfReturningMeta,
@@ -950,6 +1008,8 @@ class $KonstantinSectionTable extends KonstantinSection
   KonstantinSectionData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return KonstantinSectionData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       nightOfReturning: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}night_of_returning']),
       konstantinActionDone: attachedDatabase.typeMapping.read(
@@ -965,13 +1025,15 @@ class $KonstantinSectionTable extends KonstantinSection
 
 class KonstantinSectionData extends DataClass
     implements Insertable<KonstantinSectionData> {
+  final int id;
   final String? nightOfReturning;
   final bool? konstantinActionDone;
   const KonstantinSectionData(
-      {this.nightOfReturning, this.konstantinActionDone});
+      {required this.id, this.nightOfReturning, this.konstantinActionDone});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
     if (!nullToAbsent || nightOfReturning != null) {
       map['night_of_returning'] = Variable<String>(nightOfReturning);
     }
@@ -983,6 +1045,7 @@ class KonstantinSectionData extends DataClass
 
   KonstantinSectionCompanion toCompanion(bool nullToAbsent) {
     return KonstantinSectionCompanion(
+      id: Value(id),
       nightOfReturning: nightOfReturning == null && nullToAbsent
           ? const Value.absent()
           : Value(nightOfReturning),
@@ -996,6 +1059,7 @@ class KonstantinSectionData extends DataClass
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return KonstantinSectionData(
+      id: serializer.fromJson<int>(json['id']),
       nightOfReturning: serializer.fromJson<String?>(json['nightOfReturning']),
       konstantinActionDone:
           serializer.fromJson<bool?>(json['konstantinActionDone']),
@@ -1005,15 +1069,18 @@ class KonstantinSectionData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
       'nightOfReturning': serializer.toJson<String?>(nightOfReturning),
       'konstantinActionDone': serializer.toJson<bool?>(konstantinActionDone),
     };
   }
 
   KonstantinSectionData copyWith(
-          {Value<String?> nightOfReturning = const Value.absent(),
+          {int? id,
+          Value<String?> nightOfReturning = const Value.absent(),
           Value<bool?> konstantinActionDone = const Value.absent()}) =>
       KonstantinSectionData(
+        id: id ?? this.id,
         nightOfReturning: nightOfReturning.present
             ? nightOfReturning.value
             : this.nightOfReturning,
@@ -1024,6 +1091,7 @@ class KonstantinSectionData extends DataClass
   @override
   String toString() {
     return (StringBuffer('KonstantinSectionData(')
+          ..write('id: $id, ')
           ..write('nightOfReturning: $nightOfReturning, ')
           ..write('konstantinActionDone: $konstantinActionDone')
           ..write(')'))
@@ -1031,36 +1099,42 @@ class KonstantinSectionData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(nightOfReturning, konstantinActionDone);
+  int get hashCode => Object.hash(id, nightOfReturning, konstantinActionDone);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is KonstantinSectionData &&
+          other.id == this.id &&
           other.nightOfReturning == this.nightOfReturning &&
           other.konstantinActionDone == this.konstantinActionDone);
 }
 
 class KonstantinSectionCompanion
     extends UpdateCompanion<KonstantinSectionData> {
+  final Value<int> id;
   final Value<String?> nightOfReturning;
   final Value<bool?> konstantinActionDone;
   final Value<int> rowid;
   const KonstantinSectionCompanion({
+    this.id = const Value.absent(),
     this.nightOfReturning = const Value.absent(),
     this.konstantinActionDone = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   KonstantinSectionCompanion.insert({
+    required int id,
     this.nightOfReturning = const Value.absent(),
     this.konstantinActionDone = const Value.absent(),
     this.rowid = const Value.absent(),
-  });
+  }) : id = Value(id);
   static Insertable<KonstantinSectionData> custom({
+    Expression<int>? id,
     Expression<String>? nightOfReturning,
     Expression<bool>? konstantinActionDone,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (id != null) 'id': id,
       if (nightOfReturning != null) 'night_of_returning': nightOfReturning,
       if (konstantinActionDone != null)
         'konstantin_action_done': konstantinActionDone,
@@ -1069,10 +1143,12 @@ class KonstantinSectionCompanion
   }
 
   KonstantinSectionCompanion copyWith(
-      {Value<String?>? nightOfReturning,
+      {Value<int>? id,
+      Value<String?>? nightOfReturning,
       Value<bool?>? konstantinActionDone,
       Value<int>? rowid}) {
     return KonstantinSectionCompanion(
+      id: id ?? this.id,
       nightOfReturning: nightOfReturning ?? this.nightOfReturning,
       konstantinActionDone: konstantinActionDone ?? this.konstantinActionDone,
       rowid: rowid ?? this.rowid,
@@ -1082,6 +1158,9 @@ class KonstantinSectionCompanion
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
     if (nightOfReturning.present) {
       map['night_of_returning'] = Variable<String>(nightOfReturning.value);
     }
@@ -1098,6 +1177,7 @@ class KonstantinSectionCompanion
   @override
   String toString() {
     return (StringBuffer('KonstantinSectionCompanion(')
+          ..write('id: $id, ')
           ..write('nightOfReturning: $nightOfReturning, ')
           ..write('konstantinActionDone: $konstantinActionDone, ')
           ..write('rowid: $rowid')
@@ -1112,6 +1192,14 @@ class $DoctorSectionTable extends DoctorSection
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $DoctorSectionTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES in_common (id)'));
   static const VerificationMeta _nightOfSavingDoctorMeta =
       const VerificationMeta('nightOfSavingDoctor');
   @override
@@ -1132,7 +1220,7 @@ class $DoctorSectionTable extends DoctorSection
           }));
   @override
   List<GeneratedColumn> get $columns =>
-      [nightOfSavingDoctor, isDoctorSavedOnce];
+      [id, nightOfSavingDoctor, isDoctorSavedOnce];
   @override
   String get aliasedName => _alias ?? 'doctor_section';
   @override
@@ -1142,6 +1230,11 @@ class $DoctorSectionTable extends DoctorSection
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
     if (data.containsKey('night_of_saving_doctor')) {
       context.handle(
           _nightOfSavingDoctorMeta,
@@ -1163,6 +1256,8 @@ class $DoctorSectionTable extends DoctorSection
   DoctorSectionData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return DoctorSectionData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       nightOfSavingDoctor: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}night_of_saving_doctor']),
       isDoctorSavedOnce: attachedDatabase.typeMapping.read(
@@ -1178,12 +1273,15 @@ class $DoctorSectionTable extends DoctorSection
 
 class DoctorSectionData extends DataClass
     implements Insertable<DoctorSectionData> {
+  final int id;
   final int? nightOfSavingDoctor;
   final bool? isDoctorSavedOnce;
-  const DoctorSectionData({this.nightOfSavingDoctor, this.isDoctorSavedOnce});
+  const DoctorSectionData(
+      {required this.id, this.nightOfSavingDoctor, this.isDoctorSavedOnce});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
     if (!nullToAbsent || nightOfSavingDoctor != null) {
       map['night_of_saving_doctor'] = Variable<int>(nightOfSavingDoctor);
     }
@@ -1195,6 +1293,7 @@ class DoctorSectionData extends DataClass
 
   DoctorSectionCompanion toCompanion(bool nullToAbsent) {
     return DoctorSectionCompanion(
+      id: Value(id),
       nightOfSavingDoctor: nightOfSavingDoctor == null && nullToAbsent
           ? const Value.absent()
           : Value(nightOfSavingDoctor),
@@ -1208,6 +1307,7 @@ class DoctorSectionData extends DataClass
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return DoctorSectionData(
+      id: serializer.fromJson<int>(json['id']),
       nightOfSavingDoctor:
           serializer.fromJson<int?>(json['nightOfSavingDoctor']),
       isDoctorSavedOnce: serializer.fromJson<bool?>(json['isDoctorSavedOnce']),
@@ -1217,15 +1317,18 @@ class DoctorSectionData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
       'nightOfSavingDoctor': serializer.toJson<int?>(nightOfSavingDoctor),
       'isDoctorSavedOnce': serializer.toJson<bool?>(isDoctorSavedOnce),
     };
   }
 
   DoctorSectionData copyWith(
-          {Value<int?> nightOfSavingDoctor = const Value.absent(),
+          {int? id,
+          Value<int?> nightOfSavingDoctor = const Value.absent(),
           Value<bool?> isDoctorSavedOnce = const Value.absent()}) =>
       DoctorSectionData(
+        id: id ?? this.id,
         nightOfSavingDoctor: nightOfSavingDoctor.present
             ? nightOfSavingDoctor.value
             : this.nightOfSavingDoctor,
@@ -1236,6 +1339,7 @@ class DoctorSectionData extends DataClass
   @override
   String toString() {
     return (StringBuffer('DoctorSectionData(')
+          ..write('id: $id, ')
           ..write('nightOfSavingDoctor: $nightOfSavingDoctor, ')
           ..write('isDoctorSavedOnce: $isDoctorSavedOnce')
           ..write(')'))
@@ -1243,35 +1347,41 @@ class DoctorSectionData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(nightOfSavingDoctor, isDoctorSavedOnce);
+  int get hashCode => Object.hash(id, nightOfSavingDoctor, isDoctorSavedOnce);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DoctorSectionData &&
+          other.id == this.id &&
           other.nightOfSavingDoctor == this.nightOfSavingDoctor &&
           other.isDoctorSavedOnce == this.isDoctorSavedOnce);
 }
 
 class DoctorSectionCompanion extends UpdateCompanion<DoctorSectionData> {
+  final Value<int> id;
   final Value<int?> nightOfSavingDoctor;
   final Value<bool?> isDoctorSavedOnce;
   final Value<int> rowid;
   const DoctorSectionCompanion({
+    this.id = const Value.absent(),
     this.nightOfSavingDoctor = const Value.absent(),
     this.isDoctorSavedOnce = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   DoctorSectionCompanion.insert({
+    required int id,
     this.nightOfSavingDoctor = const Value.absent(),
     this.isDoctorSavedOnce = const Value.absent(),
     this.rowid = const Value.absent(),
-  });
+  }) : id = Value(id);
   static Insertable<DoctorSectionData> custom({
+    Expression<int>? id,
     Expression<int>? nightOfSavingDoctor,
     Expression<bool>? isDoctorSavedOnce,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (id != null) 'id': id,
       if (nightOfSavingDoctor != null)
         'night_of_saving_doctor': nightOfSavingDoctor,
       if (isDoctorSavedOnce != null) 'is_doctor_saved_once': isDoctorSavedOnce,
@@ -1280,10 +1390,12 @@ class DoctorSectionCompanion extends UpdateCompanion<DoctorSectionData> {
   }
 
   DoctorSectionCompanion copyWith(
-      {Value<int?>? nightOfSavingDoctor,
+      {Value<int>? id,
+      Value<int?>? nightOfSavingDoctor,
       Value<bool?>? isDoctorSavedOnce,
       Value<int>? rowid}) {
     return DoctorSectionCompanion(
+      id: id ?? this.id,
       nightOfSavingDoctor: nightOfSavingDoctor ?? this.nightOfSavingDoctor,
       isDoctorSavedOnce: isDoctorSavedOnce ?? this.isDoctorSavedOnce,
       rowid: rowid ?? this.rowid,
@@ -1293,6 +1405,9 @@ class DoctorSectionCompanion extends UpdateCompanion<DoctorSectionData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
     if (nightOfSavingDoctor.present) {
       map['night_of_saving_doctor'] = Variable<int>(nightOfSavingDoctor.value);
     }
@@ -1308,6 +1423,7 @@ class DoctorSectionCompanion extends UpdateCompanion<DoctorSectionData> {
   @override
   String toString() {
     return (StringBuffer('DoctorSectionCompanion(')
+          ..write('id: $id, ')
           ..write('nightOfSavingDoctor: $nightOfSavingDoctor, ')
           ..write('isDoctorSavedOnce: $isDoctorSavedOnce, ')
           ..write('rowid: $rowid')
@@ -1322,6 +1438,14 @@ class $LeonSectionTable extends LeonSection
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $LeonSectionTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES in_common (id)'));
   static const VerificationMeta _leonHasShotMeta =
       const VerificationMeta('leonHasShot');
   @override
@@ -1332,8 +1456,10 @@ class $LeonSectionTable extends LeonSection
       const VerificationMeta('leonBullets');
   @override
   late final GeneratedColumn<int> leonBullets = GeneratedColumn<int>(
-      'leon_bullets', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
+      'leon_bullets', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(2));
   static const VerificationMeta _leonWrongShotMeta =
       const VerificationMeta('leonWrongShot');
   @override
@@ -1348,7 +1474,7 @@ class $LeonSectionTable extends LeonSection
           }));
   @override
   List<GeneratedColumn> get $columns =>
-      [leonHasShot, leonBullets, leonWrongShot];
+      [id, leonHasShot, leonBullets, leonWrongShot];
   @override
   String get aliasedName => _alias ?? 'leon_section';
   @override
@@ -1358,6 +1484,11 @@ class $LeonSectionTable extends LeonSection
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
     if (data.containsKey('leon_has_shot')) {
       context.handle(
           _leonHasShotMeta,
@@ -1385,10 +1516,12 @@ class $LeonSectionTable extends LeonSection
   LeonSectionData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return LeonSectionData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       leonHasShot: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}leon_has_shot']),
       leonBullets: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}leon_bullets']),
+          .read(DriftSqlType.int, data['${effectivePrefix}leon_bullets'])!,
       leonWrongShot: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}leon_wrong_shot']),
     );
@@ -1401,20 +1534,23 @@ class $LeonSectionTable extends LeonSection
 }
 
 class LeonSectionData extends DataClass implements Insertable<LeonSectionData> {
+  final int id;
   final String? leonHasShot;
-  final int? leonBullets;
+  final int leonBullets;
   final bool? leonWrongShot;
   const LeonSectionData(
-      {this.leonHasShot, this.leonBullets, this.leonWrongShot});
+      {required this.id,
+      this.leonHasShot,
+      required this.leonBullets,
+      this.leonWrongShot});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
     if (!nullToAbsent || leonHasShot != null) {
       map['leon_has_shot'] = Variable<String>(leonHasShot);
     }
-    if (!nullToAbsent || leonBullets != null) {
-      map['leon_bullets'] = Variable<int>(leonBullets);
-    }
+    map['leon_bullets'] = Variable<int>(leonBullets);
     if (!nullToAbsent || leonWrongShot != null) {
       map['leon_wrong_shot'] = Variable<bool>(leonWrongShot);
     }
@@ -1423,12 +1559,11 @@ class LeonSectionData extends DataClass implements Insertable<LeonSectionData> {
 
   LeonSectionCompanion toCompanion(bool nullToAbsent) {
     return LeonSectionCompanion(
+      id: Value(id),
       leonHasShot: leonHasShot == null && nullToAbsent
           ? const Value.absent()
           : Value(leonHasShot),
-      leonBullets: leonBullets == null && nullToAbsent
-          ? const Value.absent()
-          : Value(leonBullets),
+      leonBullets: Value(leonBullets),
       leonWrongShot: leonWrongShot == null && nullToAbsent
           ? const Value.absent()
           : Value(leonWrongShot),
@@ -1439,8 +1574,9 @@ class LeonSectionData extends DataClass implements Insertable<LeonSectionData> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LeonSectionData(
+      id: serializer.fromJson<int>(json['id']),
       leonHasShot: serializer.fromJson<String?>(json['leonHasShot']),
-      leonBullets: serializer.fromJson<int?>(json['leonBullets']),
+      leonBullets: serializer.fromJson<int>(json['leonBullets']),
       leonWrongShot: serializer.fromJson<bool?>(json['leonWrongShot']),
     );
   }
@@ -1448,25 +1584,29 @@ class LeonSectionData extends DataClass implements Insertable<LeonSectionData> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
       'leonHasShot': serializer.toJson<String?>(leonHasShot),
-      'leonBullets': serializer.toJson<int?>(leonBullets),
+      'leonBullets': serializer.toJson<int>(leonBullets),
       'leonWrongShot': serializer.toJson<bool?>(leonWrongShot),
     };
   }
 
   LeonSectionData copyWith(
-          {Value<String?> leonHasShot = const Value.absent(),
-          Value<int?> leonBullets = const Value.absent(),
+          {int? id,
+          Value<String?> leonHasShot = const Value.absent(),
+          int? leonBullets,
           Value<bool?> leonWrongShot = const Value.absent()}) =>
       LeonSectionData(
+        id: id ?? this.id,
         leonHasShot: leonHasShot.present ? leonHasShot.value : this.leonHasShot,
-        leonBullets: leonBullets.present ? leonBullets.value : this.leonBullets,
+        leonBullets: leonBullets ?? this.leonBullets,
         leonWrongShot:
             leonWrongShot.present ? leonWrongShot.value : this.leonWrongShot,
       );
   @override
   String toString() {
     return (StringBuffer('LeonSectionData(')
+          ..write('id: $id, ')
           ..write('leonHasShot: $leonHasShot, ')
           ..write('leonBullets: $leonBullets, ')
           ..write('leonWrongShot: $leonWrongShot')
@@ -1475,40 +1615,46 @@ class LeonSectionData extends DataClass implements Insertable<LeonSectionData> {
   }
 
   @override
-  int get hashCode => Object.hash(leonHasShot, leonBullets, leonWrongShot);
+  int get hashCode => Object.hash(id, leonHasShot, leonBullets, leonWrongShot);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LeonSectionData &&
+          other.id == this.id &&
           other.leonHasShot == this.leonHasShot &&
           other.leonBullets == this.leonBullets &&
           other.leonWrongShot == this.leonWrongShot);
 }
 
 class LeonSectionCompanion extends UpdateCompanion<LeonSectionData> {
+  final Value<int> id;
   final Value<String?> leonHasShot;
-  final Value<int?> leonBullets;
+  final Value<int> leonBullets;
   final Value<bool?> leonWrongShot;
   final Value<int> rowid;
   const LeonSectionCompanion({
+    this.id = const Value.absent(),
     this.leonHasShot = const Value.absent(),
     this.leonBullets = const Value.absent(),
     this.leonWrongShot = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   LeonSectionCompanion.insert({
+    required int id,
     this.leonHasShot = const Value.absent(),
     this.leonBullets = const Value.absent(),
     this.leonWrongShot = const Value.absent(),
     this.rowid = const Value.absent(),
-  });
+  }) : id = Value(id);
   static Insertable<LeonSectionData> custom({
+    Expression<int>? id,
     Expression<String>? leonHasShot,
     Expression<int>? leonBullets,
     Expression<bool>? leonWrongShot,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (id != null) 'id': id,
       if (leonHasShot != null) 'leon_has_shot': leonHasShot,
       if (leonBullets != null) 'leon_bullets': leonBullets,
       if (leonWrongShot != null) 'leon_wrong_shot': leonWrongShot,
@@ -1517,11 +1663,13 @@ class LeonSectionCompanion extends UpdateCompanion<LeonSectionData> {
   }
 
   LeonSectionCompanion copyWith(
-      {Value<String?>? leonHasShot,
-      Value<int?>? leonBullets,
+      {Value<int>? id,
+      Value<String?>? leonHasShot,
+      Value<int>? leonBullets,
       Value<bool?>? leonWrongShot,
       Value<int>? rowid}) {
     return LeonSectionCompanion(
+      id: id ?? this.id,
       leonHasShot: leonHasShot ?? this.leonHasShot,
       leonBullets: leonBullets ?? this.leonBullets,
       leonWrongShot: leonWrongShot ?? this.leonWrongShot,
@@ -1532,6 +1680,9 @@ class LeonSectionCompanion extends UpdateCompanion<LeonSectionData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
     if (leonHasShot.present) {
       map['leon_has_shot'] = Variable<String>(leonHasShot.value);
     }
@@ -1550,6 +1701,7 @@ class LeonSectionCompanion extends UpdateCompanion<LeonSectionData> {
   @override
   String toString() {
     return (StringBuffer('LeonSectionCompanion(')
+          ..write('id: $id, ')
           ..write('leonHasShot: $leonHasShot, ')
           ..write('leonBullets: $leonBullets, ')
           ..write('leonWrongShot: $leonWrongShot, ')
@@ -1571,18 +1723,14 @@ class $MafiaSectionTable extends MafiaSection
   late final GeneratedColumn<String> whoIsBlockedLastNight =
       GeneratedColumn<String>('who_is_blocked_last_night', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _lastNightMeta =
-      const VerificationMeta('lastNight');
-  @override
-  late final GeneratedColumn<int> lastNight = GeneratedColumn<int>(
-      'last_night', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _mafiaBulletMeta =
       const VerificationMeta('mafiaBullet');
   @override
   late final GeneratedColumn<int> mafiaBullet = GeneratedColumn<int>(
-      'mafia_bullet', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
+      'mafia_bullet', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
   static const VerificationMeta _mfiaHasShotMeta =
       const VerificationMeta('mfiaHasShot');
   @override
@@ -1597,7 +1745,7 @@ class $MafiaSectionTable extends MafiaSection
           }));
   @override
   List<GeneratedColumn> get $columns =>
-      [whoIsBlockedLastNight, lastNight, mafiaBullet, mfiaHasShot];
+      [whoIsBlockedLastNight, mafiaBullet, mfiaHasShot];
   @override
   String get aliasedName => _alias ?? 'mafia_section';
   @override
@@ -1612,10 +1760,6 @@ class $MafiaSectionTable extends MafiaSection
           _whoIsBlockedLastNightMeta,
           whoIsBlockedLastNight.isAcceptableOrUnknown(
               data['who_is_blocked_last_night']!, _whoIsBlockedLastNightMeta));
-    }
-    if (data.containsKey('last_night')) {
-      context.handle(_lastNightMeta,
-          lastNight.isAcceptableOrUnknown(data['last_night']!, _lastNightMeta));
     }
     if (data.containsKey('mafia_bullet')) {
       context.handle(
@@ -1641,10 +1785,8 @@ class $MafiaSectionTable extends MafiaSection
       whoIsBlockedLastNight: attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}who_is_blocked_last_night']),
-      lastNight: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}last_night']),
       mafiaBullet: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}mafia_bullet']),
+          .read(DriftSqlType.int, data['${effectivePrefix}mafia_bullet'])!,
       mfiaHasShot: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}mfia_has_shot']),
     );
@@ -1659,13 +1801,11 @@ class $MafiaSectionTable extends MafiaSection
 class MafiaSectionData extends DataClass
     implements Insertable<MafiaSectionData> {
   final String? whoIsBlockedLastNight;
-  final int? lastNight;
-  final int? mafiaBullet;
+  final int mafiaBullet;
   final bool? mfiaHasShot;
   const MafiaSectionData(
       {this.whoIsBlockedLastNight,
-      this.lastNight,
-      this.mafiaBullet,
+      required this.mafiaBullet,
       this.mfiaHasShot});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1674,12 +1814,7 @@ class MafiaSectionData extends DataClass
       map['who_is_blocked_last_night'] =
           Variable<String>(whoIsBlockedLastNight);
     }
-    if (!nullToAbsent || lastNight != null) {
-      map['last_night'] = Variable<int>(lastNight);
-    }
-    if (!nullToAbsent || mafiaBullet != null) {
-      map['mafia_bullet'] = Variable<int>(mafiaBullet);
-    }
+    map['mafia_bullet'] = Variable<int>(mafiaBullet);
     if (!nullToAbsent || mfiaHasShot != null) {
       map['mfia_has_shot'] = Variable<bool>(mfiaHasShot);
     }
@@ -1691,12 +1826,7 @@ class MafiaSectionData extends DataClass
       whoIsBlockedLastNight: whoIsBlockedLastNight == null && nullToAbsent
           ? const Value.absent()
           : Value(whoIsBlockedLastNight),
-      lastNight: lastNight == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastNight),
-      mafiaBullet: mafiaBullet == null && nullToAbsent
-          ? const Value.absent()
-          : Value(mafiaBullet),
+      mafiaBullet: Value(mafiaBullet),
       mfiaHasShot: mfiaHasShot == null && nullToAbsent
           ? const Value.absent()
           : Value(mfiaHasShot),
@@ -1709,8 +1839,7 @@ class MafiaSectionData extends DataClass
     return MafiaSectionData(
       whoIsBlockedLastNight:
           serializer.fromJson<String?>(json['whoIsBlockedLastNight']),
-      lastNight: serializer.fromJson<int?>(json['lastNight']),
-      mafiaBullet: serializer.fromJson<int?>(json['mafiaBullet']),
+      mafiaBullet: serializer.fromJson<int>(json['mafiaBullet']),
       mfiaHasShot: serializer.fromJson<bool?>(json['mfiaHasShot']),
     );
   }
@@ -1720,30 +1849,26 @@ class MafiaSectionData extends DataClass
     return <String, dynamic>{
       'whoIsBlockedLastNight':
           serializer.toJson<String?>(whoIsBlockedLastNight),
-      'lastNight': serializer.toJson<int?>(lastNight),
-      'mafiaBullet': serializer.toJson<int?>(mafiaBullet),
+      'mafiaBullet': serializer.toJson<int>(mafiaBullet),
       'mfiaHasShot': serializer.toJson<bool?>(mfiaHasShot),
     };
   }
 
   MafiaSectionData copyWith(
           {Value<String?> whoIsBlockedLastNight = const Value.absent(),
-          Value<int?> lastNight = const Value.absent(),
-          Value<int?> mafiaBullet = const Value.absent(),
+          int? mafiaBullet,
           Value<bool?> mfiaHasShot = const Value.absent()}) =>
       MafiaSectionData(
         whoIsBlockedLastNight: whoIsBlockedLastNight.present
             ? whoIsBlockedLastNight.value
             : this.whoIsBlockedLastNight,
-        lastNight: lastNight.present ? lastNight.value : this.lastNight,
-        mafiaBullet: mafiaBullet.present ? mafiaBullet.value : this.mafiaBullet,
+        mafiaBullet: mafiaBullet ?? this.mafiaBullet,
         mfiaHasShot: mfiaHasShot.present ? mfiaHasShot.value : this.mfiaHasShot,
       );
   @override
   String toString() {
     return (StringBuffer('MafiaSectionData(')
           ..write('whoIsBlockedLastNight: $whoIsBlockedLastNight, ')
-          ..write('lastNight: $lastNight, ')
           ..write('mafiaBullet: $mafiaBullet, ')
           ..write('mfiaHasShot: $mfiaHasShot')
           ..write(')'))
@@ -1752,40 +1877,35 @@ class MafiaSectionData extends DataClass
 
   @override
   int get hashCode =>
-      Object.hash(whoIsBlockedLastNight, lastNight, mafiaBullet, mfiaHasShot);
+      Object.hash(whoIsBlockedLastNight, mafiaBullet, mfiaHasShot);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MafiaSectionData &&
           other.whoIsBlockedLastNight == this.whoIsBlockedLastNight &&
-          other.lastNight == this.lastNight &&
           other.mafiaBullet == this.mafiaBullet &&
           other.mfiaHasShot == this.mfiaHasShot);
 }
 
 class MafiaSectionCompanion extends UpdateCompanion<MafiaSectionData> {
   final Value<String?> whoIsBlockedLastNight;
-  final Value<int?> lastNight;
-  final Value<int?> mafiaBullet;
+  final Value<int> mafiaBullet;
   final Value<bool?> mfiaHasShot;
   final Value<int> rowid;
   const MafiaSectionCompanion({
     this.whoIsBlockedLastNight = const Value.absent(),
-    this.lastNight = const Value.absent(),
     this.mafiaBullet = const Value.absent(),
     this.mfiaHasShot = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MafiaSectionCompanion.insert({
     this.whoIsBlockedLastNight = const Value.absent(),
-    this.lastNight = const Value.absent(),
     this.mafiaBullet = const Value.absent(),
     this.mfiaHasShot = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   static Insertable<MafiaSectionData> custom({
     Expression<String>? whoIsBlockedLastNight,
-    Expression<int>? lastNight,
     Expression<int>? mafiaBullet,
     Expression<bool>? mfiaHasShot,
     Expression<int>? rowid,
@@ -1793,7 +1913,6 @@ class MafiaSectionCompanion extends UpdateCompanion<MafiaSectionData> {
     return RawValuesInsertable({
       if (whoIsBlockedLastNight != null)
         'who_is_blocked_last_night': whoIsBlockedLastNight,
-      if (lastNight != null) 'last_night': lastNight,
       if (mafiaBullet != null) 'mafia_bullet': mafiaBullet,
       if (mfiaHasShot != null) 'mfia_has_shot': mfiaHasShot,
       if (rowid != null) 'rowid': rowid,
@@ -1802,14 +1921,12 @@ class MafiaSectionCompanion extends UpdateCompanion<MafiaSectionData> {
 
   MafiaSectionCompanion copyWith(
       {Value<String?>? whoIsBlockedLastNight,
-      Value<int?>? lastNight,
-      Value<int?>? mafiaBullet,
+      Value<int>? mafiaBullet,
       Value<bool?>? mfiaHasShot,
       Value<int>? rowid}) {
     return MafiaSectionCompanion(
       whoIsBlockedLastNight:
           whoIsBlockedLastNight ?? this.whoIsBlockedLastNight,
-      lastNight: lastNight ?? this.lastNight,
       mafiaBullet: mafiaBullet ?? this.mafiaBullet,
       mfiaHasShot: mfiaHasShot ?? this.mfiaHasShot,
       rowid: rowid ?? this.rowid,
@@ -1822,9 +1939,6 @@ class MafiaSectionCompanion extends UpdateCompanion<MafiaSectionData> {
     if (whoIsBlockedLastNight.present) {
       map['who_is_blocked_last_night'] =
           Variable<String>(whoIsBlockedLastNight.value);
-    }
-    if (lastNight.present) {
-      map['last_night'] = Variable<int>(lastNight.value);
     }
     if (mafiaBullet.present) {
       map['mafia_bullet'] = Variable<int>(mafiaBullet.value);
@@ -1842,7 +1956,6 @@ class MafiaSectionCompanion extends UpdateCompanion<MafiaSectionData> {
   String toString() {
     return (StringBuffer('MafiaSectionCompanion(')
           ..write('whoIsBlockedLastNight: $whoIsBlockedLastNight, ')
-          ..write('lastNight: $lastNight, ')
           ..write('mafiaBullet: $mafiaBullet, ')
           ..write('mfiaHasShot: $mfiaHasShot, ')
           ..write('rowid: $rowid')

@@ -3,6 +3,7 @@ import 'dart:math';
 
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:god_father/data/local/db/app_db.dart';
 import 'package:god_father/model/last_move.dart';
 
 import 'package:god_father/model/role.dart';
@@ -14,6 +15,8 @@ import '../screens/Days/day_screen.dart';
 import '../screens/Days/three_remained.dart';
 import '../screens/nights/night_screen.dart';
 import '../screens/show_roles_screen.dart';
+
+import 'package:drift/drift.dart' as drift;
 
 // final SharedPreferences prefs = await SharedPreferences.getInstance();
 class PlayerData extends ChangeNotifier {
@@ -738,8 +741,38 @@ class PlayerData extends ChangeNotifier {
     code = null;
   }
 
+  ///
+
+  ///
+
   Future<void> newGame(playersNames, context) async {
     _alives = List.from(_playersNames);
+
+    //
+    List<InCommonCompanion> primaryListToDb = [];
+
+    for (var player in assignedRoles.keys) {
+      primaryListToDb.add(
+        InCommonCompanion(
+          playerName: drift.Value(player),
+          roleName: drift.Value(assignedRoles[player]!.name),
+          type: drift.Value(assignedRoles[player]!.type),
+          heart: drift.Value(assignedRoles[player]!.heart),
+          isBlocked: drift.Value(assignedRoles[player]!.isBlocked),
+          isSaved: drift.Value(assignedRoles[player]!.isSaved),
+          isAlive: drift.Value(assignedRoles[player]!.isShot),
+          handCuffed: drift.Value(assignedRoles[player]!.handCuffed),
+          isReversible: drift.Value(assignedRoles[player]!.isReversible),
+          order: drift.Value(assignedRoles[player]!.order),
+        ),
+      );
+    }
+
+    Provider.of<AppDb>(context, listen: false)
+        .insertMultiplePlayers(primaryListToDb);
+
+    //
+
     _dead = [];
     _mafia = 2;
     _citizen = 4;

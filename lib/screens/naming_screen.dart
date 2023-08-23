@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:god_father/data/local/db/app_db.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/player_data.dart';
@@ -51,6 +52,7 @@ class _NamingScreenState extends State<NamingScreen> {
   @override
   Widget build(BuildContext context) {
     final playerData = Provider.of<PlayerData>(context);
+    final _db = Provider.of<AppDb>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(

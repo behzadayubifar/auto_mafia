@@ -1,7 +1,8 @@
+import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
+import 'package:god_father/data/local/db/app_db.dart';
 import 'package:provider/provider.dart';
 import '../../providers/player_data.dart';
-import '../../widgets/player_actions_dialog.dart';
 import '../../widgets/dialog_utils.dart';
 
 class DayScreen extends StatefulWidget {
@@ -79,8 +80,14 @@ class _DayScreenState extends State<DayScreen> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final playerData = Provider.of<PlayerData>(context, listen: false);
+    final _db = Provider.of<AppDb>(context);
     final alives = playerData.alives;
     final day = playerData.day;
 
@@ -148,6 +155,18 @@ class _DayScreenState extends State<DayScreen> {
       ),
       appBar: AppBar(
         title: (day == 0) ? const Text('Introducing Day') : Text('Day $day'),
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => DriftDbViewer(_db)));
+            },
+            icon: const Icon(Icons.help_center_rounded),
+            label: const Text(
+              'Help',
+            ),
+          ),
+        ],
       ),
       body: WillPopScope(
         onWillPop: () async {
@@ -155,117 +174,150 @@ class _DayScreenState extends State<DayScreen> {
         },
         child: Container(
           padding: const EdgeInsets.all(16),
-          child: ListView.separated(
-            itemCount: alives.length,
-            itemBuilder: (context, index) {
-              final playerName = alives[index];
-              final playerStatus = playersSpeakingTurn[playerName] ??
-                  [
-                    {'challenge': false},
-                    {'main speech': false},
-                  ];
-              final bool challengeUsed = playerStatus[0]['challenge'] ?? false;
-              final bool mainSpeechUsed =
-                  playerStatus[1]['main speech'] ?? false;
+          child: FutureBuilder<List<InCommonData>>(
+            future: Provider.of<AppDb>(context).getAllPlayers(),
+            builder: (context, snapshot) {
+              final List<InCommonData>? players = snapshot.data;
 
-              return Opacity(
-                opacity: (challengeUsed && mainSpeechUsed) ? 0.5 : 1.0,
-                child: ListTile(
-                  title: Text(
-                    playerName,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  trailing: const Icon(Icons.arrow_forward),
-                  onTap: (mainSpeechUsed && challengeUsed)
-                      ? null
-                      : () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text(
-                                  '$playerName\'s turn to speak',
-                                  textAlign: TextAlign.center,
-                                ),
-                                alignment: Alignment.center,
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Opacity(
-                                      opacity: challengeUsed ? 0.5 : 1.0,
-                                      child: ElevatedButton(
-                                        onPressed: challengeUsed
-                                            ? null
-                                            : () {
-                                                setState(() {
-                                                  playersSpeakingTurn[
-                                                          playerName]![0]
-                                                      ['challenge'] = true;
-                                                });
-                                                showDialog(
-                                                  barrierDismissible: false,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return PlayerActionsDialog(
-                                                      seconds: 30,
-                                                      playerName: playerName,
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                        child: const Text(
-                                          'Challenge',
-                                          style: TextStyle(fontSize: 35),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Opacity(
-                                      opacity: mainSpeechUsed ? 0.5 : 1.0,
-                                      child: ElevatedButton(
-                                        onPressed: mainSpeechUsed
-                                            ? null
-                                            : () {
-                                                setState(() {
-                                                  playersSpeakingTurn[
-                                                          playerName]![1]
-                                                      ['main speech'] = true;
-                                                });
-                                                showDialog(
-                                                  barrierDismissible: false,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return PlayerActionsDialog(
-                                                      seconds: 50,
-                                                      playerName: playerName,
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                        child: const Text(
-                                          'Main Speech',
-                                          style: TextStyle(fontSize: 35),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                        },
-                ),
-              );
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.hasError) {
+                return Center(child: Text(snapshot.error.toString()));
+              }
+
+              if (players != null) {
+                return ListView.builder(
+                  itemBuilder: (context, index) {
+                    final player = players[index];
+                    return Card(
+                      child: Column(
+                        children: [
+                          Text(player.id.toString()),
+                          Text(player.playerName),
+                          Text(player.roleName),
+                        ],
+                      ),
+                    );
+                  },
+                  itemCount: players.length,
+                );
+              }
+              return const Text('No Data');
             },
-            separatorBuilder: (BuildContext context, int index) =>
-                const SizedBox(
-              height: 8,
-            ),
           ),
+          // child: ListView.separated(
+          //   itemCount: alives.length,
+          //   itemBuilder: (context, index) {
+          //     final playerName = alives[index];
+          //     final playerStatus = playersSpeakingTurn[playerName] ??
+          //         [
+          //           {'challenge': false},
+          //           {'main speech': false},
+          //         ];
+          //     final bool challengeUsed = playerStatus[0]['challenge'] ?? false;
+          //     final bool mainSpeechUsed =
+          //         playerStatus[1]['main speech'] ?? false;
+
+          //     return Opacity(
+          //       opacity: (challengeUsed && mainSpeechUsed) ? 0.5 : 1.0,
+          //       child: ListTile(
+          //         title: Text(
+          //           playerName,
+          //           style: const TextStyle(
+          //             fontSize: 18,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //         trailing: const Icon(Icons.arrow_forward),
+          //         onTap: (mainSpeechUsed && challengeUsed)
+          //             ? null
+          //             : () {
+          //                 showDialog(
+          //                   context: context,
+          //                   builder: (BuildContext context) {
+          //                     return AlertDialog(
+          //                       title: Text(
+          //                         '$playerName\'s turn to speak',
+          //                         textAlign: TextAlign.center,
+          //                       ),
+          //                       alignment: Alignment.center,
+          //                       content: Column(
+          //                         mainAxisSize: MainAxisSize.min,
+          //                         children: [
+          //                           Opacity(
+          //                             opacity: challengeUsed ? 0.5 : 1.0,
+          //                             child: ElevatedButton(
+          //                               onPressed: challengeUsed
+          //                                   ? null
+          //                                   : () {
+          //                                       setState(() {
+          //                                         playersSpeakingTurn[
+          //                                                 playerName]![0]
+          //                                             ['challenge'] = true;
+          //                                       });
+          //                                       showDialog(
+          //                                         barrierDismissible: false,
+          //                                         context: context,
+          //                                         builder: (context) {
+          //                                           return PlayerActionsDialog(
+          //                                             seconds: 30,
+          //                                             playerName: playerName,
+          //                                           );
+          //                                         },
+          //                                       );
+          //                                     },
+          //                               child: const Text(
+          //                                 'Challenge',
+          //                                 style: TextStyle(fontSize: 35),
+          //                               ),
+          //                             ),
+          //                           ),
+          //                           const SizedBox(height: 16),
+          //                           Opacity(
+          //                             opacity: mainSpeechUsed ? 0.5 : 1.0,
+          //                             child: ElevatedButton(
+          //                               onPressed: mainSpeechUsed
+          //                                   ? null
+          //                                   : () {
+          //                                       setState(() {
+          //                                         playersSpeakingTurn[
+          //                                                 playerName]![1]
+          //                                             ['main speech'] = true;
+          //                                       });
+          //                                       showDialog(
+          //                                         barrierDismissible: false,
+          //                                         context: context,
+          //                                         builder: (context) {
+          //                                           return PlayerActionsDialog(
+          //                                             seconds: 50,
+          //                                             playerName: playerName,
+          //                                           );
+          //                                         },
+          //                                       );
+          //                                     },
+          //                               child: const Text(
+          //                                 'Main Speech',
+          //                                 style: TextStyle(fontSize: 35),
+          //                               ),
+          //                             ),
+          //                           ),
+          //                           const SizedBox(height: 16),
+          //                         ],
+          //                       ),
+          //                     );
+          //                   },
+          //                 );
+          //               },
+          //       ),
+          //     );
+          //   },
+          //   separatorBuilder: (BuildContext context, int index) =>
+          //       const SizedBox(
+          //     height: 8,
+          //   ),
+          // ),
         ),
       ),
     );
