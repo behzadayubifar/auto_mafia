@@ -194,9 +194,7 @@ class _DayScreenState extends State<DayScreen> {
                     return Card(
                       child: Column(
                         children: [
-                          Text(player.id.toString()),
                           Text(player.playerName),
-                          Text(player.roleName),
                         ],
                       ),
                     );

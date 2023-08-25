@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 
 import 'package:provider/provider.dart';
 
@@ -31,16 +32,22 @@ import './screens/Days/victory.dart';
 main(List<String> args) {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MultiProvider(providers: [
+    Provider.value(value: AppDb()),
     ChangeNotifierProvider(create: (_) => DayNightThemeManager()),
     ChangeNotifierProvider(create: (_) => Settings()),
     ChangeNotifierProvider(create: (_) => Roles()),
     ChangeNotifierProvider(create: (_) => PlayerData()),
-    ChangeNotifierProvider(create: (_) => AppDbProvider()),
-    // Add the AppDbProvider
-    Provider<AppDb>(
-      create: (_) => AppDb(),
-      dispose: (_, db) => db.close(),
-    ),
+    // ChangeNotifierProvider(create: (_) => AppDbProvider()),
+    ChangeNotifierProxyProvider<AppDb, AppDbProvider>(
+        create: (context) => AppDbProvider(),
+        update: (context, db, notifier) => notifier!
+          ..initAppDb(db)
+          ..getPlayersListFuture()),
+    // // Add the AppDbProvider
+    // Provider<AppDb>(
+    //   create: (_) => AppDb(),
+    //   dispose: (_, db) => db.close(),
+    // ),
   ], child: const GodFatherApp()));
 }
 

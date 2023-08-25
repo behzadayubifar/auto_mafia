@@ -1,7 +1,4 @@
-import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
-import 'package:god_father/data/local/db/app_db.dart';
-import 'package:god_father/screens/game_screen.dart';
 import 'package:god_father/screens/naming_screen.dart';
 import '../providers/settings.dart';
 

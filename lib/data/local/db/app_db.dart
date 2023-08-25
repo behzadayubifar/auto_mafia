@@ -58,8 +58,8 @@ class AppDb extends _$AppDb {
         .getSingle();
   }
 
-  Future<bool> updatePlayer(InCommonCompanion player) async {
-    return await update(inCommon).replace(player);
+  Future<bool> updatePlayer(InCommonCompanion playerRole) async {
+    return await update(inCommon).replace(playerRole);
   }
 
   Future<int> deletePlayer(int id) async {

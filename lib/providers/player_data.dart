@@ -7,6 +7,7 @@ import 'package:god_father/data/local/db/app_db.dart';
 import 'package:god_father/model/last_move.dart';
 
 import 'package:god_father/model/role.dart';
+import 'package:god_father/providers/db_provider.dart';
 import 'package:god_father/screens/Days/victory.dart';
 import 'package:provider/provider.dart';
 import '../data/roles.dart';
@@ -745,10 +746,8 @@ class PlayerData extends ChangeNotifier {
 
   ///
 
-  Future<void> newGame(playersNames, context) async {
-    _alives = List.from(_playersNames);
-
-    //
+//
+  void primaryInsertAllPlayersToDb(BuildContext context) {
     List<InCommonCompanion> primaryListToDb = [];
 
     for (var player in assignedRoles.keys) {
@@ -760,18 +759,20 @@ class PlayerData extends ChangeNotifier {
           heart: drift.Value(assignedRoles[player]!.heart),
           isBlocked: drift.Value(assignedRoles[player]!.isBlocked),
           isSaved: drift.Value(assignedRoles[player]!.isSaved),
-          isAlive: drift.Value(assignedRoles[player]!.isShot),
           handCuffed: drift.Value(assignedRoles[player]!.handCuffed),
           isReversible: drift.Value(assignedRoles[player]!.isReversible),
           order: drift.Value(assignedRoles[player]!.order),
         ),
       );
     }
+    // context.read<AppDbProvider>().deleteAllPlayers();
+    context.read<AppDbProvider>().insertMultiplePlayers(primaryListToDb);
+  }
 
-    Provider.of<AppDb>(context, listen: false)
-        .insertMultiplePlayers(primaryListToDb);
-
-    //
+//
+  Future<void> newGame(playersNames, context) async {
+    _alives = List.from(_playersNames);
+    primaryInsertAllPlayersToDb(context);
 
     _dead = [];
     _mafia = 2;
