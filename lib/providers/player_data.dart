@@ -765,7 +765,7 @@ class PlayerData extends ChangeNotifier {
         ),
       );
     }
-    // context.read<AppDbProvider>().deleteAllPlayers();
+    context.read<AppDbProvider>().deleteAllPlayers();
     context.read<AppDbProvider>().insertMultiplePlayers(primaryListToDb);
   }
 

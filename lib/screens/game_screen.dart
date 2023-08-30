@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:god_father/providers/db_provider.dart';
+import 'package:provider/provider.dart';
 import '../screens/naming_screen.dart';
 
 class GameScreen extends StatelessWidget {
@@ -9,6 +11,7 @@ class GameScreen extends StatelessWidget {
 
   // Define a method to handle button press and navigate to the NamingScreen
   void navigateToNamingScreen(BuildContext context) {
+    print(context.read<AppDbProvider>().playersListFuture);
     Navigator.pushNamed(
       context,
       NamingScreen.routeName, /*  arguments: scenario */

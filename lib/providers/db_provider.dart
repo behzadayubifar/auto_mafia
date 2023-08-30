@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:god_father/model/role.dart';
 import '../data/local/db/app_db.dart';
 
 class AppDbProvider extends ChangeNotifier {
@@ -12,12 +13,31 @@ class AppDbProvider extends ChangeNotifier {
   List<InCommonData> get playersListFuture => _playersListFuture;
   List<InCommonData> _playersListStream = [];
   List<InCommonData> get playersListStream => _playersListStream;
+  List<String> _playersNameList = [];
+  List<String> get playersNameList => _playersNameList;
+  //
+  Map<String, Role> assignedRolesFromDb = {};
+  //
+  List<String> get playersList => _playersNameList;
+  // List<DoctorSectionData> _do
   String _error = '';
   String get error => _error;
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
 //
+  Future<void> getPlayersNameList() async {
+    _isLoading = true;
+    try {
+      _playersNameList = await _appDb!.getPlayersNamesList();
+      notifyListeners();
+      _isLoading = false;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      _isLoading = false;
+    }
+  }
 
   Future<void> getPlayersListFuture() async {
     _isLoading = true;

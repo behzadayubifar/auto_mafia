@@ -43,6 +43,7 @@ main(List<String> args) {
         update: (context, db, notifier) => notifier!
           ..initAppDb(db)
           ..getPlayersListFuture()),
+
     // // Add the AppDbProvider
     // Provider<AppDb>(
     //   create: (_) => AppDb(),

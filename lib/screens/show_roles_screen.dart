@@ -1,6 +1,7 @@
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:god_father/data/local/db/app_db.dart';
+import 'package:god_father/providers/db_provider.dart';
 import 'package:god_father/providers/player_data.dart';
 import 'package:god_father/screens/Days/day_screen.dart';
 import 'package:provider/provider.dart';
@@ -18,6 +19,7 @@ class ShowRolesScreen extends StatefulWidget {
 
 class _ShowRolesScreenState extends State<ShowRolesScreen> {
   List<String> displayedPlayers = [];
+  late AppDbProvider db;
 
   @override
   void initState() {
@@ -75,7 +77,7 @@ class _ShowRolesScreenState extends State<ShowRolesScreen> {
   @override
   Widget build(BuildContext context) {
     final playerData = Provider.of<PlayerData>(context, listen: false);
-    final _db = Provider.of<AppDb>(context, listen: false);
+    final db = Provider.of<AppDb>(context, listen: false);
     final Map<String, Role> assignedRoles = playerData.assignedRoles;
 
     return Scaffold(
@@ -85,7 +87,7 @@ class _ShowRolesScreenState extends State<ShowRolesScreen> {
           TextButton.icon(
             onPressed: () {
               Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => DriftDbViewer(_db)));
+                  MaterialPageRoute(builder: (context) => DriftDbViewer(db)));
             },
             icon: const Icon(Icons.help_center_rounded),
             label: const Text(

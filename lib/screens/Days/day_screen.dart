@@ -87,7 +87,7 @@ class _DayScreenState extends State<DayScreen> {
   @override
   Widget build(BuildContext context) {
     final playerData = Provider.of<PlayerData>(context, listen: false);
-    final _db = Provider.of<AppDb>(context);
+    final db = Provider.of<AppDb>(context);
     final alives = playerData.alives;
     final day = playerData.day;
 
@@ -159,7 +159,7 @@ class _DayScreenState extends State<DayScreen> {
           TextButton.icon(
             onPressed: () {
               Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => DriftDbViewer(_db)));
+                  MaterialPageRoute(builder: (context) => DriftDbViewer(db)));
             },
             icon: const Icon(Icons.help_center_rounded),
             label: const Text(
@@ -175,7 +175,7 @@ class _DayScreenState extends State<DayScreen> {
         child: Container(
           padding: const EdgeInsets.all(16),
           child: FutureBuilder<List<InCommonData>>(
-            future: Provider.of<AppDb>(context).getAllPlayers(),
+            future: db.getAllPlayers(),
             builder: (context, snapshot) {
               final List<InCommonData>? players = snapshot.data;
 
