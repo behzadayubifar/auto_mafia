@@ -18,20 +18,7 @@ class ShowRolesScreen extends StatefulWidget {
 }
 
 class _ShowRolesScreenState extends State<ShowRolesScreen> {
-  List<String> displayedPlayers = [];
-  late AppDbProvider db;
-
-  @override
-  void initState() {
-    super.initState();
-    final playerData = Provider.of<PlayerData>(context, listen: false);
-    displayedPlayers = List.from(playerData.alives);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
+  final List<String> displayedPlayers = [];
 
   void hidePlayer(String playerName) {
     setState(() {
@@ -76,9 +63,9 @@ class _ShowRolesScreenState extends State<ShowRolesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final playerData = Provider.of<PlayerData>(context, listen: false);
     final db = Provider.of<AppDb>(context, listen: false);
-    final Map<String, Role> assignedRoles = playerData.assignedRoles;
+    final isLoading =
+        context.select<AppDbProvider, bool>((notifier) => notifier.isLoading);
 
     return Scaffold(
       appBar: AppBar(
@@ -96,39 +83,36 @@ class _ShowRolesScreenState extends State<ShowRolesScreen> {
           ),
         ],
       ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-        ),
-        itemCount: displayedPlayers.length,
-        itemBuilder: (ctx, index) {
-          final playerName = displayedPlayers[index];
-          final playerRole = assignedRoles[playerName];
-
-          return GestureDetector(
-            onTap: createOnTapCallback(
-              playerName,
-              playerRole!.name,
-            ),
-            child: Container(
-              color: Theme.of(context).primaryColor,
-              child: Center(
-                child: Column(children: [
-                  Text(
-                    playerName,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+      body: FutureBuilder<List<InCommonData>>(
+        future: db.getAllPlayers(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasData) {
+            final List<InCommonData> players = snapshot.data!;
+            return ListView.builder(
+              itemCount: players.length,
+              itemBuilder: (context, index) {
+                final player = players[index];
+                return ListTile(
+                  title: Text(player.playerName),
+                  onTap: createOnTapCallback(
+                    player.playerName,
+                    player.roleName,
                   ),
-                ]),
-              ),
-            ),
-          );
+                );
+              },
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
         },
       ),
       floatingActionButton: FloatingActionButton(

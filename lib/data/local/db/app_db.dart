@@ -74,8 +74,9 @@ class AppDb extends _$AppDb {
     return select(inCommon).watch();
   }
 
-  Future<List<String>> getPlayersNamesList() async {
-    final players = await getAllPlayers();
-    return players.map((e) => e.playerName).toList();
+  // write a method to retrieve players' names from inCommon table
+
+  Future<List<String>> getPlayersNames() async {
+    return await select(inCommon).map((row) => row.playerName).get();
   }
 }

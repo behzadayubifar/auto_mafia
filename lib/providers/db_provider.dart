@@ -13,12 +13,12 @@ class AppDbProvider extends ChangeNotifier {
   List<InCommonData> get playersListFuture => _playersListFuture;
   List<InCommonData> _playersListStream = [];
   List<InCommonData> get playersListStream => _playersListStream;
-  List<String> _playersNameList = [];
-  List<String> get playersNameList => _playersNameList;
+  List<String> _playersNamesList = [];
+  List<String> get playersNamesList => _playersNamesList;
   //
   Map<String, Role> assignedRolesFromDb = {};
   //
-  List<String> get playersList => _playersNameList;
+  List<String> get playersList => _playersNamesList;
   // List<DoctorSectionData> _do
   String _error = '';
   String get error => _error;
@@ -26,10 +26,10 @@ class AppDbProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
 //
-  Future<void> getPlayersNameList() async {
+  Future<void> getPlayersNamesList() async {
     _isLoading = true;
     try {
-      _playersNameList = await _appDb!.getPlayersNamesList();
+      _playersNamesList = await _appDb!.getPlayersNames();
       notifyListeners();
       _isLoading = false;
     } catch (e) {
@@ -82,8 +82,9 @@ class AppDbProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> insertMultiplePlayers(List<InCommonCompanion> players) async {
+  Future<void> insertAllPlayers(List<InCommonCompanion> players) async {
     try {
+      await _appDb!.deleteAllPlayers();
       await _appDb!.insertMultiplePlayers(players);
       notifyListeners();
     } catch (e) {
@@ -120,5 +121,11 @@ class AppDbProvider extends ChangeNotifier {
       _error = e.toString();
       notifyListeners();
     }
+  }
+
+  getPlayerRoleByName(String playerName) {
+    return _playersListFuture
+        .firstWhere((element) => element.playerName == playerName)
+        .roleName;
   }
 }
